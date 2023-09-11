@@ -98,8 +98,13 @@ List swagger = [
     'io.springfox:springfox-swagger-ui:2.8.0'
 ]
 
+List nacos = [
+     'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2021.0.5.0',
+     'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config:2021.0.5.0'
+]
+
 dependencies {
-    compile springboot,jaxb,jackson,log4j,scaffold,swagger
+    compile springboot,jaxb,jackson,log4j,scaffold,swagger,nacos
     compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:2.9.2') {
         // 不需要连接节点，因此去除
         exclude group: "org.fisco-bcos", module: 'netty-sm-ssl-context'
