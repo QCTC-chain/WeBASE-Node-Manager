@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,7 +106,8 @@ public class AccountController extends BaseController {
      * add account info.
      */
     @PostMapping(value = "/accountInfo")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse addAccountInfo(@RequestBody @Valid AccountInfo info, BindingResult result)
         throws NodeMgrException {
         checkBindResult(result);
@@ -132,7 +133,8 @@ public class AccountController extends BaseController {
      * only admin can request this api
      */
     @PutMapping(value = "/accountInfo")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateAccountInfo(@RequestBody @Valid AccountInfo info, HttpServletRequest request,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -161,7 +163,8 @@ public class AccountController extends BaseController {
      * query account list.
      */
     @GetMapping(value = "/accountList/{pageNumber}/{pageSize}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BasePageResponse queryAccountList(@PathVariable("pageNumber") Integer pageNumber,
         @PathVariable("pageSize") Integer pageSize,
         @RequestParam(value = "account", required = false) String account) throws NodeMgrException {
@@ -191,7 +194,8 @@ public class AccountController extends BaseController {
      * delete contract by id.
      */
     @DeleteMapping(value = "/{account}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse deleteAccount(@PathVariable("account") String account)
         throws NodeMgrException {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);

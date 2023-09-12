@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -94,7 +94,8 @@ public class PrecompiledController extends BaseController {
     }
 
     @PostMapping(value = "consensus")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object nodeManage(@RequestBody @Valid ConsensusHandle consensusHandle,
                                   BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -114,7 +115,8 @@ public class PrecompiledController extends BaseController {
      * crud control.
      */
     @PostMapping(value = "crud")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public Object crud(@RequestBody @Valid CrudHandle crudHandle,
                                    BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -134,7 +136,8 @@ public class PrecompiledController extends BaseController {
      * contract status control.
      */
     @PostMapping(value = "contract/status")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public Object contractStatusManage(@RequestBody @Valid ContractStatusHandle contractStatusHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);

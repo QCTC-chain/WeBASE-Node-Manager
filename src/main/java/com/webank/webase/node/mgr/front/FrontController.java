@@ -31,7 +31,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +70,8 @@ public class FrontController extends BaseController {
      * add new front
      */
     @PostMapping("/new")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse newFront(@RequestBody @Valid FrontInfo frontInfo, BindingResult result) {
         checkBindResult(result);
         Instant startTime = Instant.now();
@@ -140,7 +141,8 @@ public class FrontController extends BaseController {
      * query front info list.
      */
     @GetMapping(value = "/refresh/status")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse refreshFrontStatus() throws NodeMgrException {
         Instant startTime = Instant.now();
         log.info("start refreshFrontStatus startTime:{} ", startTime.toEpochMilli());
@@ -155,7 +157,8 @@ public class FrontController extends BaseController {
      * get front's node config
      */
     @GetMapping(value = "/nodeConfig")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse getFrontNodeConfig(@RequestParam("frontId") int frontId) {
         Instant startTime = Instant.now();
         log.info("start getFrontNodeConfig startTime:{} ", startTime.toEpochMilli());

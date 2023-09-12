@@ -21,7 +21,6 @@ import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -85,16 +84,16 @@ public class ExceptionsHandler {
     /**
      * catch：AccessDeniedException.
      */
-    @ResponseBody
-    @ExceptionHandler(value = AccessDeniedException.class)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public BaseResponse accessDeniedExceptionHandler(AccessDeniedException exception)
-        throws Exception {
-        log.error("catch accessDenied exception:[]", exception);
-        BaseResponse bre = new BaseResponse(ConstantCode.ACCESS_DENIED);
-        log.warn("accessDenied exception return:{}", JsonTools.toJSONString(bre));
-        return bre;
-    }
+//    @ResponseBody
+//    @ExceptionHandler(value = AccessDeniedException.class)
+//    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+//    public BaseResponse accessDeniedExceptionHandler(AccessDeniedException exception)
+//        throws Exception {
+//        log.error("catch accessDenied exception:[]", exception);
+//        BaseResponse bre = new BaseResponse(ConstantCode.ACCESS_DENIED);
+//        log.warn("accessDenied exception return:{}", JsonTools.toJSONString(bre));
+//        return bre;
+//    }
 
     /**
      * catch：RuntimeException.

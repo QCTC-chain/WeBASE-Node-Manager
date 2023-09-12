@@ -41,7 +41,7 @@ import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,7 +76,8 @@ public class DeployController extends BaseController {
      */
 
     @PostMapping(value = "init")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse initHostList(@RequestBody @Valid ReqInitHost reqInitHost,
                                BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -103,7 +104,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "initCheck")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse initCheckHostList(@RequestBody @Valid ReqInitHost reqInitHost, BindingResult result)
         throws NodeMgrException {
         checkBindResult(result);
@@ -129,7 +131,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "config")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse configChainAndHost(@RequestBody @Valid ReqConfigChain deploy,
                                BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -165,7 +168,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "checkPort")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse checkNodePort(@RequestBody @Valid ReqConfigChain checkPort,
                                BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -195,7 +199,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/add")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse addNode(
             @RequestBody @Valid ReqAddNode addNode,
             BindingResult result) throws NodeMgrException {
@@ -226,7 +231,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/start")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse startNode(
             @RequestBody @Valid ReqNodeOption start, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -249,7 +255,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/stop")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse stopNode(
             @RequestBody @Valid ReqNodeOption stop, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -271,7 +278,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/stopForce")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse stopNodeForce(
             @RequestBody @Valid ReqNodeOption stop, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -293,7 +301,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/restart")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse restartNode(
         @RequestBody @Valid ReqNodeOption start, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -316,7 +325,8 @@ public class DeployController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "node/delete")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse deleteNode(
             @RequestBody @Valid ReqNodeOption delete, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -338,7 +348,8 @@ public class DeployController extends BaseController {
      * @throws IOException
      */
     @PostMapping(value = "upgrade")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse upgradeChain(
             @RequestBody @Valid ReqUpgrade upgrade, BindingResult result ) throws IOException {
         checkBindResult(result);
@@ -359,7 +370,8 @@ public class DeployController extends BaseController {
      * @throws IOException
      */
     @GetMapping(value = "progress")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse progress() throws IOException {
         int progress = ProgressTools.progress();
         log.debug("Start get progress status:{}", progress);
@@ -391,7 +403,8 @@ public class DeployController extends BaseController {
      * @throws IOException
      */
     @GetMapping(value = "chain/start")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse startChain(
             @RequestParam(value = "chainName", required = false, defaultValue = "default_chain") String chainName) {
         Instant startTime = Instant.now();
@@ -408,7 +421,8 @@ public class DeployController extends BaseController {
      * @throws IOException
      */
     @GetMapping(value = "chain/stop")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse stopChain(
             @RequestParam(value = "chainName", required = false, defaultValue = "default_chain") String chainName) {
         Instant startTime = Instant.now();
@@ -425,7 +439,8 @@ public class DeployController extends BaseController {
      * @throws IOException
      */
     @GetMapping(value = "chain/restart")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse restartChain(@RequestParam(value = "chainName") String chainName,
         @RequestParam(value = "groupId") Integer groupId) throws IOException {
         Instant startTime = Instant.now();
@@ -439,7 +454,8 @@ public class DeployController extends BaseController {
      * delete chain by chainName.
      */
     @DeleteMapping(value = "delete")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse deleteChain(
             @RequestParam(value = "chainName", required = false, defaultValue = "default_chain") String chainName
     ) throws NodeMgrException {

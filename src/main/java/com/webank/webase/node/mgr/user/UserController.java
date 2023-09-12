@@ -48,7 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,7 +75,8 @@ public class UserController extends BaseController {
      * add new user info.
      */
     @PostMapping(value = "/userInfo")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse addUserInfo(@RequestBody @Valid NewUserInputParam user, 
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -98,7 +99,8 @@ public class UserController extends BaseController {
      * bind user info. (add public key user, different from bind private key)
      */
     @PostMapping(value = "/bind")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse bindUserInfo(@RequestBody @Valid BindUserInputParam user,
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -120,7 +122,8 @@ public class UserController extends BaseController {
      * update user info of description
      */
     @PutMapping(value = "/userInfo")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse updateUserInfo(@RequestBody @Valid UpdateUserInputParam user,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -183,7 +186,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/import")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse importPrivateKey(@Valid @RequestBody ReqImportPrivateKey reqImport,
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         checkBindResult(result);
@@ -206,7 +210,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/importPem")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse importPemPrivateKey(@Valid @RequestBody ReqImportPem reqImportPem,
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         checkBindResult(result);
@@ -230,7 +235,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/importP12")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse importP12PrivateKey(@RequestParam MultipartFile p12File,
             @RequestParam(required = false, defaultValue = "") String p12Password,
             @RequestParam Integer groupId, @RequestParam String userName,
@@ -257,7 +263,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/exportPem")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public ResponseEntity<InputStreamResource> exportPemUserFromSign(@RequestBody ReqExport param,
         @CurrentAccount CurrentAccountInfo currentAccount) throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -277,7 +284,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping(value = "/exportP12")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public ResponseEntity<InputStreamResource> exportP12UserFromSign(@RequestBody ReqExport param,
         @CurrentAccount CurrentAccountInfo currentAccount) throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -310,7 +318,8 @@ public class UserController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping(value = "/export/{userId}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse exportRawUserFromSign(@PathVariable("userId") Integer userId)
         throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -324,7 +333,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/bind/privateKey")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse bindPrivateKey(@Valid @RequestBody ReqBindPrivateKey reqBind,
         @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         checkBindResult(result);
@@ -347,7 +357,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/bind/privateKey/pem")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse bindPrivateKeyByPem(@Valid @RequestBody ReqBindPrivateKey reqBindPem,
         @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         checkBindResult(result);
@@ -374,7 +385,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/bind/privateKey/p12")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse bindPrivateKeyByP12(@RequestParam MultipartFile p12File,
         @RequestParam(required = false, defaultValue = "") String p12Password,
         @RequestParam Integer groupId,

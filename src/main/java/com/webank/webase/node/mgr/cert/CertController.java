@@ -37,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,7 +72,8 @@ public class CertController extends BaseController {
     }
 
     @GetMapping("sdk/{frontId}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object getSdkCertList(@PathVariable("frontId") Integer frontId) throws NodeMgrException {
         Instant startTime = Instant.now();
         log.info("start getSdkCertList startTime:{},frontId:{}", startTime.toEpochMilli(), frontId);
@@ -83,7 +84,8 @@ public class CertController extends BaseController {
     }
 
     @GetMapping("sdk/zip/{frontId}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public ResponseEntity<InputStreamResource> getSdkCertZip(@PathVariable("frontId") Integer frontId)
         throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -120,7 +122,8 @@ public class CertController extends BaseController {
      * @throws NodeMgrException
      */
     @PostMapping("")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object addCert(@RequestBody @Valid CertHandle certHandle,
                                   BindingResult result) throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -145,7 +148,8 @@ public class CertController extends BaseController {
     }
 
     @DeleteMapping(value = "")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object removeCert(@RequestBody @Valid CertHandle certHandle,
                           BindingResult result) throws NodeMgrException {
         Instant startTime = Instant.now();

@@ -34,7 +34,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -128,7 +128,8 @@ public class AbiController extends BaseController {
 	}
 
 	@PostMapping("")
-	@PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+	// TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
 	public Object saveAbi(@Valid @RequestBody ReqImportAbi param, BindingResult result) {
 		checkBindResult(result);
 		Instant startTime = Instant.now();
@@ -145,7 +146,8 @@ public class AbiController extends BaseController {
 	 * @return
 	 */
 	@PutMapping("")
-	@PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+	// TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
 	public Object updateAbi(@RequestBody ReqImportAbi param, BindingResult result) {
 		checkBindResult(result);
 		Instant startTime = Instant.now();
@@ -162,7 +164,8 @@ public class AbiController extends BaseController {
 	}
 
 	@DeleteMapping("/{abiId}")
-	@PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+	// TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
 	public BaseResponse deleteAbi(@PathVariable("abiId") Integer abiId) {
 		log.debug("start deleteAbi. abiId:{}", abiId);
 		abiService.delete(abiId);

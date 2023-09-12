@@ -33,7 +33,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,7 +94,8 @@ public class ChainGovernController extends BaseController {
 
 
     @PostMapping("committee")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse grantCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -111,7 +112,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @DeleteMapping("committee")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse revokeCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -156,7 +158,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @PutMapping("committee/weight")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateCommitteeWeight(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -185,7 +188,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @PutMapping("threshold")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateThreshold(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -220,7 +224,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @PostMapping("operator")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse grantOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -237,7 +242,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @DeleteMapping("operator")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse revokeOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -278,7 +284,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @PostMapping("account")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse freezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -295,7 +302,8 @@ public class ChainGovernController extends BaseController {
     }
 
     @DeleteMapping("account")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse unfreezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);

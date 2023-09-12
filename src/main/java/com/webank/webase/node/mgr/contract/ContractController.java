@@ -54,7 +54,7 @@ import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.utils.AddressUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,7 +81,8 @@ public class ContractController extends BaseController {
      * add new contract info.
      */
     @PostMapping(value = "/save")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse saveContract(@RequestBody @Valid Contract contract,
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -110,7 +111,8 @@ public class ContractController extends BaseController {
      * delete contract by id.
      */
     @DeleteMapping(value = "/{groupId}/{contractId}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deleteContract(@PathVariable("groupId") Integer groupId,
             @PathVariable("contractId") Integer contractId) throws NodeMgrException, Exception {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -186,7 +188,8 @@ public class ContractController extends BaseController {
      * deploy deployInputParam.
      */
     @PostMapping(value = "/deploy")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deployContract(@RequestBody @Valid DeployInputParam deployInputParam,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -209,7 +212,8 @@ public class ContractController extends BaseController {
      * send transaction.
      */
     @PostMapping(value = "/transaction")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse sendTransaction(@RequestBody @Valid TransactionInputParam param,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -296,7 +300,8 @@ public class ContractController extends BaseController {
      * add contract path
      */
     @PostMapping(value = "/contractPath")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse addContractPath(@Valid @RequestBody ContractPathParam param,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) {
         BaseResponse response = new BaseResponse(ConstantCode.SUCCESS);
@@ -342,7 +347,8 @@ public class ContractController extends BaseController {
      * delete contract by path. only admin batch delete contract
      */
     @DeleteMapping(value = "/batch/path")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deleteContractByPath(@Valid @RequestBody ContractPathParam param,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -383,7 +389,8 @@ public class ContractController extends BaseController {
      * registerCns.
      */
     @PostMapping(value = "/registerCns")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse registerCns(@RequestBody @Valid ReqRegisterCns reqRegisterCns,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -452,7 +459,8 @@ public class ContractController extends BaseController {
     }
 
     @PostMapping(value = "/copy")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse copyContracts(@RequestBody @Valid ReqCopyContracts req,
         @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         Instant startTime = Instant.now();
@@ -473,7 +481,8 @@ public class ContractController extends BaseController {
      * which has private key in webase
      */
     @GetMapping("listManager/{groupId}/{contractAddress}")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse queryContractManagerList(@PathVariable("groupId") Integer groupId,
         @PathVariable("contractAddress") String contractAddress) {
         Instant startTime = Instant.now();

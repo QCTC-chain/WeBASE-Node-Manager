@@ -22,7 +22,7 @@ import java.time.Instant;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,7 +73,8 @@ public class PrecompiledSysConfigController extends BaseController {
      * set system config by key.
      */
     @PostMapping(value = "config")
-    @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
+    // TODO:  使用sa-token鉴权
+// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object setSysConfigByKeyService(@RequestBody @Valid SysConfigParam sysConfigParam,
                                   BindingResult result) throws NodeMgrException {
         checkBindResult(result);
