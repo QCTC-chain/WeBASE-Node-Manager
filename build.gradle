@@ -104,7 +104,7 @@ List nacos = [
 ]
 
 dependencies {
-    compile springboot,jaxb,jackson,log4j,scaffold,swagger,nacos
+    compile springboot,jaxb,jackson,log4j,scaffold,nacos
     compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:2.9.2') {
         // 不需要连接节点，因此去除
         exclude group: "org.fisco-bcos", module: 'netty-sm-ssl-context'
@@ -129,6 +129,19 @@ dependencies {
     compile 'org.thymeleaf:thymeleaf:3.0.11.RELEASE'
     // 使用3.1.26才能确保Thymeleaf正常
 //    compile 'ognl:ognl:3.2.14'
+
+    /* begin: 微服务框架集成 */
+    implementation fileTree(dir:'lib', include:['*.jar'])
+
+    // Sa-Token 权限认证，在线文档：https://sa-token.cc
+    implementation 'cn.dev33:sa-token-spring-boot-starter:1.35.0.RC'
+    implementation 'cn.dev33:sa-token-jwt:1.35.0.RC'
+    implementation 'cn.hutool:hutool-extra:5.8.20'
+    implementation ('org.redisson:redisson-spring-boot-starter:3.18.0') {
+        exclude group: "redisson-spring-data-30"
+    }
+    implementation 'org.redisson:redisson-spring-data-27:3.18.0'
+    /* end: 微服务框架集成 */
 
     testCompile test,mbg
 
