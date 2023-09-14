@@ -15,6 +15,7 @@
  */
 package com.webank.webase.node.mgr.cert;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="证书管理")
 @Log4j2
 @RestController
 @RequestMapping("cert")
@@ -55,6 +59,7 @@ public class CertController extends BaseController {
     @Autowired
     CertService certService;
 
+    @SaCheckPermission("bcos:sys:certificate")
     @GetMapping("list")
     public Object getCertList() throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -71,9 +76,8 @@ public class CertController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, list, list.size());
     }
 
+    @SaCheckPermission("bcos:sys:certificate")
     @GetMapping("sdk/{frontId}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object getSdkCertList(@PathVariable("frontId") Integer frontId) throws NodeMgrException {
         Instant startTime = Instant.now();
         log.info("start getSdkCertList startTime:{},frontId:{}", startTime.toEpochMilli(), frontId);
@@ -83,9 +87,8 @@ public class CertController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, list, list.size());
     }
 
+    @SaCheckPermission("bcos:sys:downloadSdkCert")
     @GetMapping("sdk/zip/{frontId}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public ResponseEntity<InputStreamResource> getSdkCertZip(@PathVariable("frontId") Integer frontId)
         throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -98,6 +101,7 @@ public class CertController extends BaseController {
             .body(new InputStreamResource(fileContentHandle.getInputStream()));
     }
 
+    @SaCheckPermission("bcos:sys:certificate")
     @GetMapping("")
     public Object getCertByFingerPrint(@RequestParam(required = true)String fingerPrint) throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -121,9 +125,8 @@ public class CertController extends BaseController {
      * @return
      * @throws NodeMgrException
      */
+    @SaCheckPermission("bcos:sys:addCert")
     @PostMapping("")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object addCert(@RequestBody @Valid CertHandle certHandle,
                                   BindingResult result) throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -147,9 +150,8 @@ public class CertController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, count);
     }
 
+    @SaCheckPermission("bcos:sys:deleteCert")
     @DeleteMapping(value = "")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object removeCert(@RequestBody @Valid CertHandle certHandle,
                           BindingResult result) throws NodeMgrException {
         Instant startTime = Instant.now();

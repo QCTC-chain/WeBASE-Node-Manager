@@ -64,6 +64,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +81,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * application integration api.
  */
+@Tag(name="第三方应用集成api")
 @Log4j2
 @RestController
 @RequestMapping(value = "api")
@@ -131,97 +134,97 @@ public class AppIntegrationApi extends BaseController {
         return baseResponse;
     }
 
-    /**
-     * query account list.
-     */
-    @GetMapping(value = "/accountList")
-    public BasePageResponse queryAccountList(@RequestParam(required = true) Integer pageNumber,
-            @RequestParam(required = true) Integer pageSize,
-            @RequestParam(required = false) String account) throws NodeMgrException {
-        BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
-        Instant startTime = Instant.now();
-        log.info("start queryAccountList.  startTime:{} pageNumber:{} pageSize:{}",
-                startTime.toEpochMilli(), pageNumber, pageSize);
-
-        int count = accountService.countOfAccount(account);
-        if (count > 0) {
-            Integer start =
-                    Optional.ofNullable(pageNumber).map(page -> (page - 1) * pageSize).orElse(0);
-            AccountListParam param =
-                    new AccountListParam(start, pageSize, account, SqlSortType.DESC.getValue());
-            List<TbAccountInfo> listOfAccount = accountService.listOfAccount(param);
-            listOfAccount.stream().forEach(accountData -> accountData.setAccountPwd(null));
-            pageResponse.setData(listOfAccount);
-            pageResponse.setTotalCount(count);
-        }
-
-        log.info("end queryAccountList useTime:{} result:{}",
-                Duration.between(startTime, Instant.now()).toMillis(),
-                JsonTools.toJSONString(pageResponse));
-        return pageResponse;
-    }
-
-    /**
-     * query role list.
-     */
-    @GetMapping(value = "/roleList")
-    public BasePageResponse queryRoleList() throws NodeMgrException {
-        Instant startTime = Instant.now();
-        log.info("start queryRoleList.", startTime.toEpochMilli());
-
-        // query
-        BasePageResponse pageResponse = roleService.queryRoleList(null, null, null, null);
-
-        log.info("end queryRoleList useTime:{} result:{}",
-                Duration.between(startTime, Instant.now()).toMillis(),
-                JsonTools.toJSONString(pageResponse));
-        return pageResponse;
-    }
-
-    /**
-     * add account info.
-     */
-    @PostMapping(value = "/accountAdd")
-    public BaseResponse addAccountInfo(@RequestBody @Valid AccountInfo info, BindingResult result)
-            throws NodeMgrException {
-        checkBindResult(result);
-        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
-        Instant startTime = Instant.now();
-        log.info("start addAccountInfo. startTime:{}", startTime.toEpochMilli());
-
-        // add account row
-        accountService.addAccountRow(info);
-
-        // query row
-        TbAccountInfo tbAccount = accountService.queryByAccount(info.getAccount());
-        tbAccount.setAccountPwd(null);
-        baseResponse.setData(tbAccount);
-
-        log.info("end addAccountInfo useTime:{} result:{}",
-                Duration.between(startTime, Instant.now()).toMillis(),
-                JsonTools.toJSONString(baseResponse));
-        return baseResponse;
-    }
-
-    /**
-     * update password.
-     */
-    @PostMapping(value = "/passwordUpdate")
-    public BaseResponse updatePassword(@RequestBody @Valid UpdatePasswordInfo info,
-            BindingResult result) throws NodeMgrException {
-        checkBindResult(result);
-        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
-        Instant startTime = Instant.now();
-
-        // update account row
-        accountService.updatePassword(info.getAccount(), info.getOldAccountPwd(),
-                info.getNewAccountPwd());
-
-        log.info("end updatePassword useTime:{} result:{}",
-                Duration.between(startTime, Instant.now()).toMillis(),
-                JsonTools.toJSONString(baseResponse));
-        return baseResponse;
-    }
+//    /**
+//     * query account list.
+//     */
+//    @GetMapping(value = "/accountList")
+//    public BasePageResponse queryAccountList(@RequestParam(required = true) Integer pageNumber,
+//            @RequestParam(required = true) Integer pageSize,
+//            @RequestParam(required = false) String account) throws NodeMgrException {
+//        BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
+//        Instant startTime = Instant.now();
+//        log.info("start queryAccountList.  startTime:{} pageNumber:{} pageSize:{}",
+//                startTime.toEpochMilli(), pageNumber, pageSize);
+//
+//        int count = accountService.countOfAccount(account);
+//        if (count > 0) {
+//            Integer start =
+//                    Optional.ofNullable(pageNumber).map(page -> (page - 1) * pageSize).orElse(0);
+//            AccountListParam param =
+//                    new AccountListParam(start, pageSize, account, SqlSortType.DESC.getValue());
+//            List<TbAccountInfo> listOfAccount = accountService.listOfAccount(param);
+//            listOfAccount.stream().forEach(accountData -> accountData.setAccountPwd(null));
+//            pageResponse.setData(listOfAccount);
+//            pageResponse.setTotalCount(count);
+//        }
+//
+//        log.info("end queryAccountList useTime:{} result:{}",
+//                Duration.between(startTime, Instant.now()).toMillis(),
+//                JsonTools.toJSONString(pageResponse));
+//        return pageResponse;
+//    }
+//
+//    /**
+//     * query role list.
+//     */
+//    @GetMapping(value = "/roleList")
+//    public BasePageResponse queryRoleList() throws NodeMgrException {
+//        Instant startTime = Instant.now();
+//        log.info("start queryRoleList.", startTime.toEpochMilli());
+//
+//        // query
+//        BasePageResponse pageResponse = roleService.queryRoleList(null, null, null, null);
+//
+//        log.info("end queryRoleList useTime:{} result:{}",
+//                Duration.between(startTime, Instant.now()).toMillis(),
+//                JsonTools.toJSONString(pageResponse));
+//        return pageResponse;
+//    }
+//
+//    /**
+//     * add account info.
+//     */
+//    @PostMapping(value = "/accountAdd")
+//    public BaseResponse addAccountInfo(@RequestBody @Valid AccountInfo info, BindingResult result)
+//            throws NodeMgrException {
+//        checkBindResult(result);
+//        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
+//        Instant startTime = Instant.now();
+//        log.info("start addAccountInfo. startTime:{}", startTime.toEpochMilli());
+//
+//        // add account row
+//        accountService.addAccountRow(info);
+//
+//        // query row
+//        TbAccountInfo tbAccount = accountService.queryByAccount(info.getAccount());
+//        tbAccount.setAccountPwd(null);
+//        baseResponse.setData(tbAccount);
+//
+//        log.info("end addAccountInfo useTime:{} result:{}",
+//                Duration.between(startTime, Instant.now()).toMillis(),
+//                JsonTools.toJSONString(baseResponse));
+//        return baseResponse;
+//    }
+//
+//    /**
+//     * update password.
+//     */
+//    @PostMapping(value = "/passwordUpdate")
+//    public BaseResponse updatePassword(@RequestBody @Valid UpdatePasswordInfo info,
+//            BindingResult result) throws NodeMgrException {
+//        checkBindResult(result);
+//        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
+//        Instant startTime = Instant.now();
+//
+//        // update account row
+//        accountService.updatePassword(info.getAccount(), info.getOldAccountPwd(),
+//                info.getNewAccountPwd());
+//
+//        log.info("end updatePassword useTime:{} result:{}",
+//                Duration.between(startTime, Instant.now()).toMillis(),
+//                JsonTools.toJSONString(baseResponse));
+//        return baseResponse;
+//    }
 
     /**
      * get base info.

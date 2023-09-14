@@ -16,6 +16,7 @@
 
 package com.webank.webase.node.mgr.alert.log;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.tools.JsonTools;
 import com.webank.webase.node.mgr.alert.log.entity.AlertLog;
 import com.webank.webase.node.mgr.alert.log.entity.ReqLogListParam;
@@ -26,6 +27,7 @@ import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.base.enums.SqlSortType;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import com.webank.webase.node.mgr.config.properties.ConstantProperties;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,8 +39,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * AlertLog Controller for get/update logs
+ * 告警日志管理
+ *
+ * @author QCTC
  */
+@Tag(name= "告警日志管理")
 @Log4j2
 @RestController
 @RequestMapping("log")
@@ -46,6 +51,7 @@ public class AlertLogController {
     @Autowired
     private AlertLogService alertLogService;
 
+    @SaCheckPermission("bcos:monitor:emailAlarmType")
     @GetMapping("/list/{pageNumber}/{pageSize}")
     public Object listAlertLog(@PathVariable("pageNumber") Integer pageNumber,
                                @PathVariable("pageSize") Integer pageSize) {
@@ -73,9 +79,8 @@ public class AlertLogController {
      * @param param
      * @return
      */
+    @SaCheckPermission("bcos:monitor:updateAlertLog")
     @PutMapping("")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object updateAlertLog(@RequestBody ReqLogParam param) {
         Instant startTime = Instant.now();
         log.info("start updateAlertLog. startTime:{} ReqAlertLogParam:{}",
@@ -95,6 +100,7 @@ public class AlertLogController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:monitor:getAlertLog")
     @GetMapping("/{logId}")
     public Object getAlertLogById(@PathVariable("logId") Integer logId) {
         Instant startTime = Instant.now();

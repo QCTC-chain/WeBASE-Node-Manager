@@ -13,6 +13,7 @@
  */
 package com.webank.webase.node.mgr.contract;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.annotation.CurrentAccount;
 import com.webank.webase.node.mgr.base.annotation.entity.CurrentAccountInfo;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
@@ -48,6 +49,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
@@ -65,6 +68,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="合约管理")
 @Log4j2
 @RestController
 @RequestMapping("contract")
@@ -80,9 +84,8 @@ public class ContractController extends BaseController {
     /**
      * add new contract info.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/save")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse saveContract(@RequestBody @Valid Contract contract,
             @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -110,9 +113,8 @@ public class ContractController extends BaseController {
     /**
      * delete contract by id.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @DeleteMapping(value = "/{groupId}/{contractId}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deleteContract(@PathVariable("groupId") Integer groupId,
             @PathVariable("contractId") Integer contractId) throws NodeMgrException, Exception {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -132,6 +134,7 @@ public class ContractController extends BaseController {
     /**
      * query contract info list.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractList")
     public BasePageResponse queryContractList(@RequestBody QueryContractParam inputParam, 
             @CurrentAccount CurrentAccountInfo currentAccountInfo) throws NodeMgrException {
@@ -168,6 +171,7 @@ public class ContractController extends BaseController {
     /**
      * query by contract id.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @GetMapping(value = "/{contractId}")
     public BaseResponse queryContract(@PathVariable("contractId") Integer contractId) {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -187,9 +191,8 @@ public class ContractController extends BaseController {
     /**
      * deploy deployInputParam.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/deploy")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deployContract(@RequestBody @Valid DeployInputParam deployInputParam,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -211,9 +214,8 @@ public class ContractController extends BaseController {
     /**
      * send transaction.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/transaction")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse sendTransaction(@RequestBody @Valid TransactionInputParam param,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -248,6 +250,7 @@ public class ContractController extends BaseController {
     /**
      * get by partOfBytecodeBin.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/findByPartOfBytecodeBin")
     public BaseResponse getByPartOfByecodebin(@RequestBody @Valid QueryByBinParam queryParam,
             BindingResult result) {
@@ -268,6 +271,7 @@ public class ContractController extends BaseController {
     /**
      * query contract info list by groupId without abi/bin
      */
+    @SaCheckPermission("bcos:contract:ide")
     @GetMapping(value = "/contractList/all/light")
     public BasePageResponse queryContractListNoAbi(@RequestParam Integer groupId,
             @RequestParam Integer contractStatus) throws NodeMgrException {
@@ -299,9 +303,8 @@ public class ContractController extends BaseController {
     /**
      * add contract path
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractPath")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse addContractPath(@Valid @RequestBody ContractPathParam param,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) {
         BaseResponse response = new BaseResponse(ConstantCode.SUCCESS);
@@ -324,6 +327,7 @@ public class ContractController extends BaseController {
     /**
      * query contract info list.
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractPath/list/{groupId}")
     public BasePageResponse queryContractPathList(@PathVariable("groupId") Integer groupId,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) {
@@ -346,9 +350,8 @@ public class ContractController extends BaseController {
     /**
      * delete contract by path. only admin batch delete contract
      */
+    @SaCheckPermission("bcos:contract:ide")
     @DeleteMapping(value = "/batch/path")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse deleteContractByPath(@Valid @RequestBody ContractPathParam param,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -366,6 +369,7 @@ public class ContractController extends BaseController {
     /**
      * query contract info list by multi path
      */
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractList/multiPath")
     public BasePageResponse listContractByMultiPath(@RequestBody ReqListContract inputParam,
             @CurrentAccount CurrentAccountInfo currentAccountInfo) throws NodeMgrException {
@@ -388,9 +392,8 @@ public class ContractController extends BaseController {
     /**
      * registerCns.
      */
+    @SaCheckPermission("bcos:contract:cnsManagement")
     @PostMapping(value = "/registerCns")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse registerCns(@RequestBody @Valid ReqRegisterCns reqRegisterCns,
             BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -409,6 +412,7 @@ public class ContractController extends BaseController {
     /**
      * query cns info
      */
+    @SaCheckPermission("bcos:contract:cnsManagement")
     @PostMapping(value = "/findCns")
     public BaseResponse findCnsByAddress(@RequestBody @Valid ReqQueryCns reqQueryCns,
             BindingResult result) throws NodeMgrException {
@@ -428,6 +432,7 @@ public class ContractController extends BaseController {
     /**
      * query cns info list
      */
+    @SaCheckPermission("bcos:contract:cnsManagement")
     @PostMapping(value = "/findCnsList")
     public BasePageResponse findCnsList(@RequestBody @Valid ReqQueryCnsList inputParam,
             BindingResult result) throws NodeMgrException {
@@ -458,9 +463,8 @@ public class ContractController extends BaseController {
         return pageResponse;
     }
 
+    @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/copy")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse copyContracts(@RequestBody @Valid ReqCopyContracts req,
         @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
         Instant startTime = Instant.now();
@@ -480,9 +484,8 @@ public class ContractController extends BaseController {
      * get deploy address or permission admin user address list
      * which has private key in webase
      */
+    @SaCheckPermission("bcos:contract:ide")
     @GetMapping("listManager/{groupId}/{contractAddress}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse queryContractManagerList(@PathVariable("groupId") Integer groupId,
         @PathVariable("contractAddress") String contractAddress) {
         Instant startTime = Instant.now();

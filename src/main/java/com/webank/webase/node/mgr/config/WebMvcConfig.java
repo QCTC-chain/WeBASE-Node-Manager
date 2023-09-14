@@ -1,18 +1,8 @@
 package com.webank.webase.node.mgr.config;
 
-import com.webank.webase.node.mgr.base.annotation.CurrentAccountMethodArgumentResolver;
-import com.webank.webase.node.mgr.config.security.filter.AccountFilter;
-import com.webank.webase.node.mgr.config.security.filter.AppIntegrationFilter;
-import com.webank.webase.node.mgr.config.properties.ConstantProperties;
-import java.util.List;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * web configuration.
