@@ -13,6 +13,7 @@
  */
 package com.webank.webase.node.mgr.group;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -40,6 +41,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -56,6 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller for processing group information.
  */
+@Tag(name="群组管理")
 @Log4j2
 @RestController
 @RequestMapping("group")
@@ -74,6 +78,7 @@ public class GroupController extends BaseController {
     /**
      * get group general.
      */
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping("/general/{groupId}")
     public BaseResponse getGroupGeneral(@PathVariable("groupId") Integer groupId)
             throws NodeMgrException {
@@ -107,6 +112,7 @@ public class GroupController extends BaseController {
     /**
      * query all normal group without invalid group(suspend, removed)
      */
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping("/all")
     public BasePageResponse getAllGroup() throws NodeMgrException {
         BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
@@ -137,6 +143,7 @@ public class GroupController extends BaseController {
      * @return
      * @throws NodeMgrException
      */
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping({"/all/invalidIncluded/{pageNumber}/{pageSize}",
             "/all/invalidIncluded"})
     public BasePageResponse getAllGroupIncludeInvalidGroup(@PathVariable(value = "pageNumber",required = false) Integer pageNumber,
@@ -167,6 +174,7 @@ public class GroupController extends BaseController {
         return pageResponse;
     }
 
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping("/all/{groupStatus}")
     public BaseResponse getAllGroupOfStatus(@PathVariable("groupStatus") Integer groupStatus) throws NodeMgrException {
         if (groupStatus > GroupStatus.CONFLICT_LOCAL_DATA.getValue()
@@ -196,6 +204,7 @@ public class GroupController extends BaseController {
     /**
      * get trans daily.
      */
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping("/transDaily/{groupId}")
     public BaseResponse getTransDaily(@PathVariable("groupId") Integer groupId) throws Exception {
         BaseResponse pageResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -215,9 +224,8 @@ public class GroupController extends BaseController {
     /**
      * generate group to single node(single front)
      */
+    @SaCheckPermission("bcos:groups:operate")
     @PostMapping("/generate/{nodeId}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse generateToSingleNode(@PathVariable("nodeId") String nodeId,
                                              @RequestBody @Valid ReqGenerateGroup req,
                                              BindingResult result) throws NodeMgrException {
@@ -236,9 +244,8 @@ public class GroupController extends BaseController {
     /**
      * generate group to all front(all node)
      */
+    @SaCheckPermission("bcos:groups:operate")
     @PostMapping("/generate")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse generateGroup(@RequestBody @Valid ReqGenerateGroup req,
                                       BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -257,9 +264,8 @@ public class GroupController extends BaseController {
      * operate group to single front.
      * (start, stop, remove, recover, getStatus)
      */
+    @SaCheckPermission("bcos:groups:operate")
     @PostMapping("/operate/{nodeId}")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object operateGroup(@PathVariable("nodeId") String nodeId, @RequestBody @Valid ReqOperateGroup req,
                                BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -279,9 +285,8 @@ public class GroupController extends BaseController {
      * query group status list
      * @return map of <nodeId,<groupId, status>>
      */
+    @SaCheckPermission("bcos:groups:query")
     @PostMapping("/queryGroupStatus/list")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse getGroupStatusList(@Valid @RequestBody ReqGroupStatus reqGroupStatus) throws NodeMgrException {
         Instant startTime = Instant.now();
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
@@ -299,9 +304,8 @@ public class GroupController extends BaseController {
     /**
      * batch start group.(start group to all front
      */
+    @SaCheckPermission("bcos:groups:operate")
     @PostMapping("/batchStart")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse batchStartGroup(@RequestBody @Valid ReqBatchStartGroup req, BindingResult result)
             throws NodeMgrException {
         checkBindResult(result);
@@ -320,6 +324,7 @@ public class GroupController extends BaseController {
     /**
      * update group.
      */
+    @SaCheckPermission("bcos:groups:operate")
     @GetMapping("/update")
     public BaseResponse updateGroup() throws NodeMgrException {
         Instant startTime = Instant.now();
@@ -335,6 +340,7 @@ public class GroupController extends BaseController {
     /**
      * delete all group's data(trans, contract, node etc.)
      */
+    @SaCheckPermission("bcos:groups:operate")
     @DeleteMapping("/{groupId}")
     public BaseResponse deleteGroupData(@PathVariable("groupId") Integer groupId) {
         Instant startTime = Instant.now();
@@ -347,6 +353,7 @@ public class GroupController extends BaseController {
         return baseResponse;
     }
 
+    @SaCheckPermission("bcos:groups:query")
     @GetMapping("/detail/{groupId}")
     public BaseResponse getGroupDetail(@PathVariable("groupId") Integer groupId)
         throws NodeMgrException {
@@ -362,9 +369,8 @@ public class GroupController extends BaseController {
         return baseResponse;
     }
 
+    @SaCheckPermission("bcos:groups:operate")
     @PutMapping("/description")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateDescription(@RequestBody @Valid ReqUpdateDesc req, BindingResult result)
         throws NodeMgrException {
         checkBindResult(result);

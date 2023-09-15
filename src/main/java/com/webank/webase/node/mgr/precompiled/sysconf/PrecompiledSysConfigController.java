@@ -15,12 +15,14 @@
  */
 package com.webank.webase.node.mgr.precompiled.sysconf;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.precompiled.entity.SysConfigParam;
 import java.time.Duration;
 import java.time.Instant;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.validation.BindingResult;
@@ -42,9 +44,11 @@ import lombok.extern.log4j.Log4j2;
  * System config value controller
  * manage tx_count and gas_limit
  */
+@Tag(name="配置管理")
 @Log4j2
 @RestController
 @RequestMapping("sys")
+@SaCheckPermission("bcos:sys:configManagement")
 public class PrecompiledSysConfigController extends BaseController {
 
     @Autowired

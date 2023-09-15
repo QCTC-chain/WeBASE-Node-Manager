@@ -14,6 +14,7 @@
 
 package com.webank.webase.node.mgr.precompiled.permission;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -31,6 +32,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * permission manage above FISCO-BCOS v2.5.0
  */
+@Tag(name="权限管理")
 @Log4j2
 @RestController
 @RequestMapping("governance")
@@ -58,6 +62,7 @@ public class ChainGovernController extends BaseController {
      * get permission manager paged list
      * 透传front的BaseResponse
      */
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("committee/list")
     public BasePageResponse listCommittee(
         @RequestParam(defaultValue = "1") Integer groupId,
@@ -75,6 +80,7 @@ public class ChainGovernController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, finalList, totalCount);
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("committee/list/sorted")
     public BasePageResponse listCommitteeWithWeight(
         @RequestParam(defaultValue = "1") Integer groupId,
@@ -93,9 +99,8 @@ public class ChainGovernController extends BaseController {
     }
 
 
+    @SaCheckPermission("bcos:sys:grantCommittee")
     @PostMapping("committee")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse grantCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -111,9 +116,8 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:revokeCommittee")
     @DeleteMapping("committee")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse revokeCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -129,6 +133,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("committee/weight")
     public BaseResponse getCommitteeWeight(@RequestParam Integer groupId, @RequestParam String address) {
 
@@ -141,6 +146,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @PostMapping("committee/weight/list")
     public BaseResponse listCommitteeWeight(@Valid @RequestBody AddressStatusHandle addressStatusHandle,
         BindingResult result) throws NodeMgrException {
@@ -157,9 +163,8 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:updateCommitteeWeight")
     @PutMapping("committee/weight")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateCommitteeWeight(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -175,6 +180,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("threshold")
     public BaseResponse getThreshold(@RequestParam Integer groupId) {
 
@@ -187,9 +193,8 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:updateThreshold")
     @PutMapping("threshold")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse updateThreshold(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -206,6 +211,7 @@ public class ChainGovernController extends BaseController {
     }
 
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("operator/list")
     public BasePageResponse listOperator(
         @RequestParam(defaultValue = "1") Integer groupId,
@@ -223,9 +229,8 @@ public class ChainGovernController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, finalList, totalCount);
     }
 
+    @SaCheckPermission("bcos:sys:grantOperator")
     @PostMapping("operator")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse grantOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -241,9 +246,8 @@ public class ChainGovernController extends BaseController {
         return res;
     }
 
+    @SaCheckPermission("bcos:sys:revokeOperator")
     @DeleteMapping("operator")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse revokeOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -259,6 +263,7 @@ public class ChainGovernController extends BaseController {
         return res;
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("account/status")
     public BaseResponse getAccountStatus(@RequestParam Integer groupId, @RequestParam String address) {
 
@@ -271,6 +276,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:newPermission")
     @PostMapping("account/status/list")
     public BaseResponse listAccountStatus(@RequestBody AddressStatusHandle addressStatusHandle) {
 
@@ -283,9 +289,8 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @SaCheckPermission("bcos:sys:freezeAccount")
     @PostMapping("account")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse freezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -301,9 +306,8 @@ public class ChainGovernController extends BaseController {
         return res;
     }
 
+    @SaCheckPermission("bcos:sys:unfreezeAccount")
     @DeleteMapping("account")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse unfreezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);

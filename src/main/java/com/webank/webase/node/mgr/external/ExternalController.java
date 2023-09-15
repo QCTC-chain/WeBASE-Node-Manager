@@ -14,6 +14,7 @@
 
 package com.webank.webase.node.mgr.external;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.annotation.CurrentAccount;
 import com.webank.webase.node.mgr.base.annotation.entity.CurrentAccountInfo;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
@@ -34,6 +35,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="异常用户/合约信息查询")
 @Log4j2
 @RestController
 @RequestMapping(value = "external")
@@ -55,6 +59,7 @@ public class ExternalController extends BaseController {
     /**
      * query external account info list.
      */
+    @SaCheckPermission("bcos:transAudit:externalAccount")
     @GetMapping(value = "account/list/{groupId}/{pageNumber}/{pageSize}")
     public BasePageResponse extAccountList(@PathVariable("groupId") Integer groupId,
         @PathVariable("pageNumber") Integer pageNumber,
@@ -90,6 +95,7 @@ public class ExternalController extends BaseController {
     /**
      * query contract info list by groupId without abi/bin
      */
+    @SaCheckPermission("bcos:transAudit:externalContract")
     @GetMapping(value = "/contract/list/{groupId}/{pageNumber}/{pageSize}")
     public BasePageResponse extContractList(@PathVariable("groupId") Integer groupId,
         @PathVariable("pageNumber") Integer pageNumber,
@@ -124,6 +130,7 @@ public class ExternalController extends BaseController {
      * query external account info list.
      * left join tb_user的接口
      */
+    @SaCheckPermission("bcos:transAudit:externalAccount")
     @GetMapping(value = "account/list/all/{groupId}/{pageNumber}/{pageSize}")
     public BasePageResponse listExtUserListJoin(@PathVariable("groupId") Integer groupId,
         @PathVariable("pageNumber") Integer pageNumber,
@@ -169,6 +176,7 @@ public class ExternalController extends BaseController {
      * query contract info list by groupId without abi/bin
      * left join tb_abi的接口（本地全量）
      */
+    @SaCheckPermission("bcos:transAudit:externalContract")
     @GetMapping(value = "/contract/list/all/{groupId}/{pageNumber}/{pageSize}")
     public BasePageResponse listExtContractListJoin(@PathVariable("groupId") Integer groupId,
         @PathVariable("pageNumber") Integer pageNumber,
@@ -214,6 +222,7 @@ public class ExternalController extends BaseController {
     /**
      * get deploy address
      */
+    @SaCheckPermission("bcos:transAudit:externalContract")
     @GetMapping("deployAddress/{groupId}/{contractAddress}")
     public BaseResponse queryDeployAddress(@PathVariable("groupId") Integer groupId,
         @PathVariable("contractAddress") String contractAddress) {

@@ -15,6 +15,7 @@
  */
 package com.webank.webase.node.mgr.precompiled;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.precompiled.entity.AddressStatusHandle;
@@ -25,6 +26,7 @@ import java.time.Instant;
 import java.util.Map;
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.validation.BindingResult;
@@ -48,6 +50,7 @@ import lombok.extern.log4j.Log4j2;
  * Precompiled common controller
  * including management of CNS, node consensus status, CRUD
  */
+@Tag(name="预编译通用接口(包含cns、node status、crud)")
 @Log4j2
 @RestController
 @RequestMapping("precompiled")
@@ -59,6 +62,7 @@ public class PrecompiledController extends BaseController {
      * get cns list
      * 透传front的BaseResponse
      */
+    @SaCheckPermission("bcos:contract:cnsManagement")
     @GetMapping("cns/list")
     public Object listCns(
             @RequestParam(defaultValue = "1") int groupId,
@@ -78,6 +82,7 @@ public class PrecompiledController extends BaseController {
     /**
      * get node list with consensus status.
      */
+    @SaCheckPermission("bcos:chain:front")
     @GetMapping("consensus/list")
     public Object getNodeList(
             @RequestParam(defaultValue = "1") int groupId,
@@ -93,9 +98,8 @@ public class PrecompiledController extends BaseController {
         return result;
     }
 
+    @SaCheckPermission("bcos:chain:nodeManage")
     @PostMapping(value = "consensus")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object nodeManage(@RequestBody @Valid ConsensusHandle consensusHandle,
                                   BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -114,9 +118,8 @@ public class PrecompiledController extends BaseController {
     /**
      * crud control.
      */
+    @SaCheckPermission("bcos:contract:crud")
     @PostMapping(value = "crud")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public Object crud(@RequestBody @Valid CrudHandle crudHandle,
                                    BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -135,9 +138,8 @@ public class PrecompiledController extends BaseController {
     /**
      * contract status control.
      */
+    @SaCheckPermission("bcos:contract:contractStatusManage")
     @PostMapping(value = "contract/status")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public Object contractStatusManage(@RequestBody @Valid ContractStatusHandle contractStatusHandle,
         BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -153,6 +155,7 @@ public class PrecompiledController extends BaseController {
         return res;
     }
 
+    @SaCheckPermission("bcos:contract:List")
     @PostMapping(value = "contract/status/list")
     public BaseResponse listContractStatus(@RequestBody @Valid AddressStatusHandle addressStatusHandle,
         BindingResult result) throws NodeMgrException {

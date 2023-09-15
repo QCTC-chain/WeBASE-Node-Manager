@@ -14,12 +14,15 @@
 
 package com.webank.webase.node.mgr.precompiled.permission.governvote;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.precompiled.permission.governvote.entity.GovernParam;
 import com.webank.webase.node.mgr.precompiled.permission.governvote.entity.TbGovernVote;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="权限管理")
 @RestController
 @RequestMapping("vote")
 public class GovernVoteController {
@@ -40,6 +44,7 @@ public class GovernVoteController {
     /**
      * get contract freeze record list
      */
+    @SaCheckPermission("bcos:sys:listGovernVote")
     @GetMapping("record/list")
     public BasePageResponse listGovernVote(@RequestParam Integer groupId,
         @RequestParam(defaultValue = "1") Integer pageNumber,
@@ -62,6 +67,7 @@ public class GovernVoteController {
     /**
      * delete contract status record
      */
+    @SaCheckPermission("bcos:sys:delContractStatusRec")
     @DeleteMapping("record/{voteId}")
     public BaseResponse deleteContractStatusRecord(@PathVariable("voteId") Integer voteId) {
         governVoteService.deleteVote(voteId);

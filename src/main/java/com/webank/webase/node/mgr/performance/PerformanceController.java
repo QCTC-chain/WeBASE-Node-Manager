@@ -15,6 +15,7 @@
  */
 package com.webank.webase.node.mgr.performance;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.tools.JsonTools;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
@@ -22,6 +23,8 @@ import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -35,9 +38,11 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * get performance info.
  */
+@Tag(name="主机性能信息")
 @Log4j2
 @RestController
 @RequestMapping(value = "performance")
+@SaCheckPermission("bcos:monitor:hostMetric")
 public class PerformanceController {
 
     @Autowired

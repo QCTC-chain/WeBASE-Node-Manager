@@ -94,6 +94,7 @@ public class UserService {
      * @throws NodeMgrException
      */
     @Transactional
+    // TODO: 处理账户相关业务逻辑
     public TbUser addUserInfoLocal(Integer groupId, String userName, String account, String description,
         Integer userType, String privateKeyEncoded) throws NodeMgrException {
         return addUserInfo(groupId, userName, account, description, userType,
@@ -104,6 +105,7 @@ public class UserService {
      * add new user data.
      */
     @Transactional
+    // TODO: 处理账户相关业务逻辑
     public TbUser addUserInfo(Integer groupId, String userName, String account, String description,
             Integer userType, String privateKeyEncoded, boolean returnPrivateKey, 
             boolean isCheckExist) throws NodeMgrException {
@@ -217,6 +219,7 @@ public class UserService {
      * bind user info.
      */
     @Transactional
+    // TODO: 账户相关的业务逻辑处理
     public TbUser bindUserInfo(BindUserInputParam user, String account, boolean isCheckExist) throws NodeMgrException {
         log.debug("start bindUserInfo User:{}", JsonTools.toJSONString(user));
 

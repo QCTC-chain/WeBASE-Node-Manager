@@ -14,6 +14,7 @@
 package com.webank.webase.node.mgr.front;
 
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -29,6 +30,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import javax.validation.Valid;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,9 +48,11 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * front controller
  */
+@Tag(name="节点前置")
 @Log4j2
 @RestController
 @RequestMapping("front")
+@SaCheckPermission("bcos:chain:front")
 public class FrontController extends BaseController {
 
     @Autowired
@@ -70,8 +75,6 @@ public class FrontController extends BaseController {
      * add new front
      */
     @PostMapping("/new")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public BaseResponse newFront(@RequestBody @Valid FrontInfo frontInfo, BindingResult result) {
         checkBindResult(result);
         Instant startTime = Instant.now();
@@ -141,8 +144,6 @@ public class FrontController extends BaseController {
      * query front info list.
      */
     @GetMapping(value = "/refresh/status")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse refreshFrontStatus() throws NodeMgrException {
         Instant startTime = Instant.now();
         log.info("start refreshFrontStatus startTime:{} ", startTime.toEpochMilli());
@@ -157,8 +158,6 @@ public class FrontController extends BaseController {
      * get front's node config
      */
     @GetMapping(value = "/nodeConfig")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN_OR_DEVELOPER)
     public BaseResponse getFrontNodeConfig(@RequestParam("frontId") int frontId) {
         Instant startTime = Instant.now();
         log.info("start getFrontNodeConfig startTime:{} ", startTime.toEpochMilli());

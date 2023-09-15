@@ -15,6 +15,7 @@
  */
 package com.webank.webase.node.mgr.precompiled.permission;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.precompiled.entity.PermissionParam;
 import com.webank.webase.node.mgr.precompiled.entity.PermissionState;
 import java.time.Duration;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.validation.BindingResult;
@@ -51,6 +53,7 @@ import lombok.extern.log4j.Log4j2;
  * Permission contoller
  * grant or revoke administrator and get administrators on chain
  */
+@Tag(name="权限管理")
 @Log4j2
 @RestController
 @RequestMapping("permission")
@@ -62,6 +65,7 @@ public class PermissionManageController extends BaseController {
      * get permission state list
      * 返回user的权限状态，包含cns, sysConfig, deployAndCreate, node
      */
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("sorted")
     public Object listPermissionMgrState(
             @RequestParam(defaultValue = "1") int groupId,
@@ -87,6 +91,7 @@ public class PermissionManageController extends BaseController {
      * get permission manager paged list
      * 透传front的BaseResponse
      */
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("")
     public Object listPermissionManager(
             @RequestParam(defaultValue = "1") int groupId,
@@ -110,6 +115,7 @@ public class PermissionManageController extends BaseController {
      * 根据权限类型返回拥有该权限的全部user address
      * 透传front的BaseResponse
      */
+    @SaCheckPermission("bcos:sys:newPermission")
     @GetMapping("full")
     public Object listFullPermissionManager(
             @RequestParam(defaultValue = "1") int groupId,
@@ -130,9 +136,8 @@ public class PermissionManageController extends BaseController {
      * grant permission.
      * 更新用户的权限状态 包含cns, sysConfig, deployAndCreate, node
      */
+    @SaCheckPermission("bcos:sys:updatePermission")
     @PostMapping(value = "sorted")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object updatePermission(@RequestBody @Valid PermissionParam permissionParam,
                                   BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -147,9 +152,8 @@ public class PermissionManageController extends BaseController {
         return res;
     }
 
+    @SaCheckPermission("bcos:sys:grantPermission\n")
     @PostMapping(value = "")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object grantPermission(@RequestBody @Valid PermissionParam permissionParam,
                                        BindingResult result) throws NodeMgrException {
         checkBindResult(result);
@@ -168,9 +172,8 @@ public class PermissionManageController extends BaseController {
     /**
      * revoke Permission.
      */
+    @SaCheckPermission("bcos:sys:revokePermission")
     @DeleteMapping(value = "")
-    // TODO:  使用sa-token鉴权
-// @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)
     public Object revokePermission(@RequestBody @Valid PermissionParam permissionParam,
                                  BindingResult result) throws NodeMgrException {
         checkBindResult(result);
