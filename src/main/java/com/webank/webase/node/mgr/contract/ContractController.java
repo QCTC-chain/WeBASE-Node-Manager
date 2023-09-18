@@ -14,12 +14,15 @@
 package com.webank.webase.node.mgr.contract;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.satoken.utils.LoginHelper;
+import com.qctc.system.api.model.LoginUser;
 import com.webank.webase.node.mgr.base.annotation.CurrentAccount;
 import com.webank.webase.node.mgr.base.annotation.entity.CurrentAccountInfo;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
+import com.webank.webase.node.mgr.base.enums.GlobalRoleType;
 import com.webank.webase.node.mgr.base.enums.RoleType;
 import com.webank.webase.node.mgr.base.enums.SqlSortType;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
@@ -87,7 +90,7 @@ public class ContractController extends BaseController {
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/save")
     public BaseResponse saveContract(@RequestBody @Valid Contract contract,
-            @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) throws NodeMgrException {
+            BindingResult result) throws NodeMgrException {
         checkBindResult(result);
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
@@ -98,7 +101,7 @@ public class ContractController extends BaseController {
             contract.setContractPath("/");
         }
         // add contract row
-        contract.setAccount(currentAccountInfo.getAccount());
+        contract.setAccount(LoginHelper.getUsername());
         TbContract tbContract = contractService.saveContract(contract);
 
         baseResponse.setData(tbContract);
@@ -136,18 +139,21 @@ public class ContractController extends BaseController {
      */
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractList")
-    public BasePageResponse queryContractList(@RequestBody QueryContractParam inputParam, 
-            @CurrentAccount CurrentAccountInfo currentAccountInfo) throws NodeMgrException {
+    public BasePageResponse queryContractList(@RequestBody QueryContractParam inputParam) throws NodeMgrException {
         BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start contractList. startTime:{} inputParam:{}", startTime.toEpochMilli(),
                 JsonTools.toJSONString(inputParam));
 
+        LoginUser curLoginUser = LoginHelper.getLoginUser();
+
         // param
         ContractParam queryParam = new ContractParam();
         BeanUtils.copyProperties(inputParam, queryParam);
-        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue() 
-                ? currentAccountInfo.getAccount() : null;
+//        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue()
+//                ? currentAccountInfo.getAccount() : null;
+        String account = curLoginUser.getRolePermission().contains(GlobalRoleType.DEVELOPER.getValue())
+                ? curLoginUser.getUsername() : null;
         queryParam.setAccount(account);
 
         int count = contractService.countOfContract(queryParam);
@@ -305,8 +311,7 @@ public class ContractController extends BaseController {
      */
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractPath")
-    public BaseResponse addContractPath(@Valid @RequestBody ContractPathParam param,
-            @CurrentAccount CurrentAccountInfo currentAccountInfo) {
+    public BaseResponse addContractPath(@Valid @RequestBody ContractPathParam param) {
         BaseResponse response = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start addContractPath. startTime:{} param:{}", startTime.toEpochMilli(), param);
@@ -315,7 +320,7 @@ public class ContractController extends BaseController {
         if ("".equals(contractPath)) {
             contractPath = "/";
         }
-        int result = contractPathService.save(param.getGroupId(), contractPath, currentAccountInfo.getAccount(), false);
+        int result = contractPathService.save(param.getGroupId(), contractPath, LoginHelper.getUsername(), false);
         response.setData(result);
 
         log.info("end addContractPath. useTime:{} add result:{}",
@@ -329,14 +334,17 @@ public class ContractController extends BaseController {
      */
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractPath/list/{groupId}")
-    public BasePageResponse queryContractPathList(@PathVariable("groupId") Integer groupId,
-            @CurrentAccount CurrentAccountInfo currentAccountInfo) {
+    public BasePageResponse queryContractPathList(@PathVariable("groupId") Integer groupId) {
         BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start queryContractPathList. startTime:{} groupId:{}", startTime.toEpochMilli(),
                 groupId);
-        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue() 
-                ? currentAccountInfo.getAccount() : null;
+
+        LoginUser curLoginUser = LoginHelper.getLoginUser();
+//        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue()
+//                ? currentAccountInfo.getAccount() : null;
+        String account = curLoginUser.getRolePermission().contains(GlobalRoleType.DEVELOPER.getValue())
+                ? curLoginUser.getUsername() : null;
         List<TbContractPath> result = contractService.queryContractPathList(groupId, account);
         pageResponse.setData(result);
         pageResponse.setTotalCount(result.size());
@@ -352,14 +360,13 @@ public class ContractController extends BaseController {
      */
     @SaCheckPermission("bcos:contract:ide")
     @DeleteMapping(value = "/batch/path")
-    public BaseResponse deleteContractByPath(@Valid @RequestBody ContractPathParam param,
-            @CurrentAccount CurrentAccountInfo currentAccountInfo) {
+    public BaseResponse deleteContractByPath(@Valid @RequestBody ContractPathParam param) {
         BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start deleteContractByPath startTime:{} ContractPathParam:{}",
                 startTime.toEpochMilli(), param);
         
-        contractService.deleteByContractPath(param, currentAccountInfo);
+        contractService.deleteByContractPath(param, LoginHelper.getLoginUser());
 
         log.info("end deleteContractByPath useTime:{}",
                 Duration.between(startTime, Instant.now()).toMillis());
@@ -371,15 +378,16 @@ public class ContractController extends BaseController {
      */
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/contractList/multiPath")
-    public BasePageResponse listContractByMultiPath(@RequestBody ReqListContract inputParam,
-            @CurrentAccount CurrentAccountInfo currentAccountInfo) throws NodeMgrException {
+    public BasePageResponse listContractByMultiPath(@RequestBody ReqListContract inputParam) throws NodeMgrException {
         BasePageResponse pageResponse = new BasePageResponse(ConstantCode.SUCCESS);
         Instant startTime = Instant.now();
         log.info("start listContractByMultiPath. startTime:{} inputParam:{}",
                 startTime.toEpochMilli(), JsonTools.toJSONString(inputParam));
 
-        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId()
-                .intValue() ? currentAccountInfo.getAccount() : null;
+        LoginUser curLoginUser = LoginHelper.getLoginUser();
+//        String account = RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId()
+//                .intValue() ? currentAccountInfo.getAccount() : null;
+        String account = curLoginUser.getRolePermission().contains(GlobalRoleType.DEVELOPER.getValue()) ? curLoginUser.getUsername() : null;
         inputParam.setAccount(account);
         List<TbContract> contractList = contractService.queryContractListMultiPath(inputParam);
         pageResponse.setTotalCount(contractList.size());
@@ -466,12 +474,12 @@ public class ContractController extends BaseController {
     @SaCheckPermission("bcos:contract:ide")
     @PostMapping(value = "/copy")
     public BaseResponse copyContracts(@RequestBody @Valid ReqCopyContracts req,
-        @CurrentAccount CurrentAccountInfo currentAccountInfo, BindingResult result) {
+           BindingResult result) {
         Instant startTime = Instant.now();
         log.info("copyContracts start. startTime:{}  req:{}", startTime.toEpochMilli(),
                 JsonTools.toJSONString(req));
         checkBindResult(result);
-        req.setAccount(currentAccountInfo.getAccount());
+        req.setAccount(LoginHelper.getUsername());
         contractService.copyContracts(req);
         log.info("end copyContracts. useTime:{}",
                 Duration.between(startTime, Instant.now()).toMillis());

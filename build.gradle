@@ -139,6 +139,8 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-webmvc-core:1.6.15'
     implementation 'org.springdoc:springdoc-openapi-javadoc:1.6.15'
+
+    implementation 'org.apache.dubbo:dubbo-spring-boot-starter:3.1.8'
     /* end: 微服务框架集成 */
 
     testCompile test,mbg

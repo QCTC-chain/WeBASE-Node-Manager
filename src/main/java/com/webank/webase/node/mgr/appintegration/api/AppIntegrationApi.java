@@ -14,7 +14,7 @@
 
 package com.webank.webase.node.mgr.appintegration.api;
 
-import com.webank.webase.node.mgr.account.AccountService;
+//import com.webank.webase.node.mgr.account.AccountService;
 import com.webank.webase.node.mgr.account.entity.AccountInfo;
 import com.webank.webase.node.mgr.account.entity.AccountListParam;
 import com.webank.webase.node.mgr.account.entity.TbAccountInfo;
@@ -91,8 +91,8 @@ public class AppIntegrationApi extends BaseController {
     private CryptoSuite cryptoSuite;
     @Autowired
     private AppIntegrationService appIntegrationService;
-    @Autowired
-    private AccountService accountService;
+//    @Autowired
+//    private AccountService accountService;
     @Autowired
     private RoleService roleService;
     @Autowired

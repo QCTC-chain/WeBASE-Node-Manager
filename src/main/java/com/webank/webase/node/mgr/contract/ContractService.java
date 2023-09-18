@@ -13,6 +13,7 @@
  */
 package com.webank.webase.node.mgr.contract;
 
+import com.qctc.system.api.model.LoginUser;
 import com.webank.webase.node.mgr.appintegration.contractstore.ContractStoreService;
 import com.webank.webase.node.mgr.appintegration.contractstore.entity.ContractStoreParam;
 import com.webank.webase.node.mgr.appintegration.contractstore.entity.ReqContractAddressSave;
@@ -21,10 +22,7 @@ import com.webank.webase.node.mgr.base.annotation.entity.CurrentAccountInfo;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
-import com.webank.webase.node.mgr.base.enums.ContractStatus;
-import com.webank.webase.node.mgr.base.enums.ContractType;
-import com.webank.webase.node.mgr.base.enums.HasPk;
-import com.webank.webase.node.mgr.base.enums.RoleType;
+import com.webank.webase.node.mgr.base.enums.*;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import com.webank.webase.node.mgr.config.properties.ConstantProperties;
 import com.webank.webase.node.mgr.contract.abi.entity.ReqAbiListParam;
@@ -702,12 +700,13 @@ public class  ContractService {
         return resultList;
     }
 
-    public void deleteByContractPath(ContractPathParam param, CurrentAccountInfo currentAccountInfo) {
+    public void deleteByContractPath(ContractPathParam param, LoginUser curLoginUser) {
         log.debug("start deleteByContractPath ContractPathParam:{}", JsonTools.toJSONString(param));
         // check developer
-        if (RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue()
+//        if (RoleType.DEVELOPER.getValue().intValue() == currentAccountInfo.getRoleId().intValue()
+        if (curLoginUser.getRolePermission().contains(GlobalRoleType.DEVELOPER.getValue())
             && !contractPathService.checkPathExist(param.getGroupId(), param.getContractPath(),
-            currentAccountInfo.getAccount())) {
+            curLoginUser.getUsername())) {
             log.error("end deleteByContractPath. contract path not exists.");
             throw new NodeMgrException(ConstantCode.CONTRACT_PATH_NOT_EXISTS);
         }
