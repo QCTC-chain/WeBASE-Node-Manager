@@ -14,6 +14,7 @@
 package com.webank.webase.node.mgr.deploy.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.code.RetCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
@@ -116,7 +117,7 @@ public class DeployController extends BaseController {
 
         try {
             // generate node config and return shell execution log
-            List<TbHost> hostList = hostService.checkInitAndListHost(reqInitHost.getHostIdList());
+            List<HostDTO> hostList = hostService.checkInitAndListHost(reqInitHost.getHostIdList());
             log.info("end initCheckHostList. useTime:{}", Duration.between(startTime, Instant.now()).toMillis());
             return new BaseResponse(ConstantCode.SUCCESS, hostList);
         } catch (NodeMgrException e) {

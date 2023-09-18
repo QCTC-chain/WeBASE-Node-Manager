@@ -18,6 +18,8 @@ package com.webank.webase.node.mgr.deploy.service;
 import static com.webank.webase.node.mgr.tools.IPUtil.LOCAL_IP_127;
 import static com.webank.webase.node.mgr.tools.IPUtil.LOCAL_IP_host;
 
+import com.qctc.host.api.RemoteHostService;
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.enums.HostStatusEnum;
 import com.webank.webase.node.mgr.base.enums.ScpTypeEnum;
@@ -56,6 +58,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.io.FileUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.logging.log4j.Level;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,13 +92,21 @@ public class HostService {
     @Autowired
     private ConfigService configService;
 
+    @DubboReference
+    private RemoteHostService remoteHostService;
+
     @Qualifier(value = "deployAsyncScheduler")
     @Autowired private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public boolean updateStatus(int hostId, HostStatusEnum newStatus, String remark) throws NodeMgrException {
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public boolean updateStatus(int hostId, HostStatusEnum newStatus, String remark) throws NodeMgrException {
+//        log.info("Change host status to:[{}:{}:{}]", hostId, newStatus, remark);
+//        return tbHostMapper.updateHostStatus(hostId, new Date(), newStatus.getId(), remark) == 1;
+//    }
+
+    public boolean updateStatus(Integer hostId, HostStatusEnum newStatus, String remark) throws NodeMgrException {
         log.info("Change host status to:[{}:{}:{}]", hostId, newStatus, remark);
-        return tbHostMapper.updateHostStatus(hostId, new Date(), newStatus.getId(), remark) == 1;
+        return remoteHostService.updateHostStatus(hostId, newStatus.getId(), remark);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -151,15 +162,16 @@ public class HostService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean  initHostAndDocker(String chainName, String imageTag, List<Integer> hostIdList, int imagePullType) {
-        List<TbHost> tbHostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> tbHostList = this.selectDistinctHostListById(hostIdList);
 
         log.info("Start initHostAndDocker chain:[{}] hosts:[{}].", chainName, CollectionUtils.size(tbHostList));
         final CountDownLatch initHostLatch = new CountDownLatch(CollectionUtils.size(tbHostList));
         // check success count
         AtomicInteger initSuccessCount = new AtomicInteger(0);
 
+
         ProgressTools.setHostInit();
-        for (final TbHost tbHost : tbHostList) {
+        for (final HostDTO tbHost : tbHostList) {
             log.info("initHostAndDocker host:[{}], status:[{}]", tbHost.getIp(), tbHost.getStatus());
 
             Future<?> task = threadPoolTaskScheduler.submit(() -> {
@@ -250,14 +262,14 @@ public class HostService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public List<TbHost> checkInitAndListHost(List<Integer> hostIdList) {
+    public List<HostDTO> checkInitAndListHost(List<Integer> hostIdList) {
         log.info("start checkInitAndListHost hostIdList:{}", hostIdList);
-        List<TbHost> hostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> hostList = this.selectDistinctHostListById(hostIdList);
         hostList.stream()
             .filter(host -> host.getStatus() == HostStatusEnum.INITIATING.getId())
             .forEach(host -> {
                 Date now = new Date();
-                Date modifyTime = host.getModifyTime();
+                Date modifyTime = host.getUpdateTime();
                 long gap = now.getTime() - modifyTime.getTime();
                 if (gap > constant.getExecHostInitTimeout()) {
                     log.warn("checkInitAndListHost host init failed for time out");
@@ -279,7 +291,7 @@ public class HostService {
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean scpConfigHostList(String chainName, List<Integer> hostIdList) throws InterruptedException {
 
-        List<TbHost> tbHostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> tbHostList = this.selectDistinctHostListById(hostIdList);
 
         log.info("Start scpConfigHostList init chain:[{}] hosts:[{}].", chainName, CollectionUtils.size(tbHostList));
         final CountDownLatch configHostLatch = new CountDownLatch(CollectionUtils.size(tbHostList));
@@ -288,7 +300,7 @@ public class HostService {
         Map<Integer, Future> taskMap = new HashedMap<>();
 
         ProgressTools.setScpConfig();
-        for (final TbHost tbHost : tbHostList) {
+        for (final HostDTO tbHost : tbHostList) {
             log.info("scpConfigHostList Init host:[{}], status:[{}]", tbHost.getIp(), tbHost.getStatus());
 
             Future<?> task = threadPoolTaskScheduler.submit(() -> {
@@ -338,7 +350,7 @@ public class HostService {
         configHostLatch.await(constant.getExecHostConfigTimeout(), TimeUnit.MILLISECONDS);
         log.info("Check config host time");
         taskMap.entrySet().forEach((entry) -> {
-            int hostId = entry.getKey();
+            Integer hostId = entry.getKey();
             Future<?> task = entry.getValue();
             if(! task.isDone()){
                 log.error("scpConfigHostList Config host:[{}] timeout, cancel the task.", hostId );
@@ -363,7 +375,7 @@ public class HostService {
      * @param chainId
      * @return
      */
-    public List<TbHost> selectHostListByChainId(int chainId) {
+    public List<HostDTO> selectHostListByChainId(int chainId) {
         log.info("selectHostListByChainId chainId:{}", chainId);
         // select all agencies by chainId
         List<TbFront> frontList = frontService.selectFrontListByChainId(chainId);
@@ -371,7 +383,7 @@ public class HostService {
         List<Integer> hostIdList = frontList.stream()
                 .map(TbFront::getHostId)
                 .collect(Collectors.toList());
-        List<TbHost> hostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> hostList = this.selectDistinctHostListById(hostIdList);
         log.info("selectHostListByChainId hostList:{}", hostList);
 
         return hostList;
@@ -498,9 +510,9 @@ public class HostService {
     @Transactional
     public void mvHostChainDirByIdList(String chainName, List<Integer> hostIdList){
         log.info("start deleteHostHostIdList chainName:{},hostIdList:{}", chainName, hostIdList);
-        List<TbHost> hostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> hostList = this.selectDistinctHostListById(hostIdList);
         if(CollectionUtils.isNotEmpty(hostList)){
-            for (TbHost host : hostList) {
+            for (HostDTO host : hostList) {
                 // move chain config files
                 chainService.mvChainOnRemote(host.getIp(), host.getRootDir(), chainName);
             }
@@ -515,17 +527,17 @@ public class HostService {
     public int hostProgress(int chainId){
         // check host init
         int hostFinishCount = 0;
-        List<TbHost> hostList = this.selectHostListByChainId(chainId);
+        List<HostDTO> hostList = this.selectHostListByChainId(chainId);
         if (CollectionUtils.isEmpty(hostList)) {
             return NumberUtil.PERCENTAGE_FINISH;
         }
-        for (TbHost host : hostList) {
+        for (HostDTO host : hostList) {
             HostStatusEnum hostStatusEnum = HostStatusEnum.getById(host.getStatus());
             switch (hostStatusEnum){
                 case INIT_FAILED:
                     return NumberUtil.PERCENTAGE_FAILED;
                 case INIT_SUCCESS:
-                    hostFinishCount ++;
+                    hostFinishCount++;
                     break;
                 default:
                     break;
@@ -545,8 +557,8 @@ public class HostService {
      * @param imageTag
      */
     public void checkImageExists(List<Integer> hostIdList, String imageTag){
-        List<TbHost> hostList = this.selectDistinctHostListById(hostIdList);
-        Set<String> ipSet = hostList.stream().map(TbHost::getIp).collect(Collectors.toSet());
+        List<HostDTO> hostList = this.selectDistinctHostListById(hostIdList);
+        Set<String> ipSet = hostList.stream().map(HostDTO::getIp).collect(Collectors.toSet());
         this.checkImageExists(ipSet, imageTag);
     }
 
@@ -573,7 +585,7 @@ public class HostService {
     public boolean batchCheckHostList(List<Integer> hostIdList) throws InterruptedException {
         log.info("batchCheckHostList hostIdList:{}", hostIdList);
         // save repeat time in "remark"
-        List<TbHost> tbHostList = this.selectDistinctHostListById(hostIdList);
+        List<HostDTO> tbHostList = this.selectDistinctHostListById(hostIdList);
         log.info("batchCheckHostList tbHostList:{}", tbHostList);
 
         final CountDownLatch checkHostLatch = new CountDownLatch(CollectionUtils.size(tbHostList));
@@ -582,7 +594,7 @@ public class HostService {
         Map<Integer, Future> taskMap = new HashedMap<>();
 
         ProgressTools.setHostCheck();
-        for (final TbHost tbHost : tbHostList) {
+        for (final HostDTO tbHost : tbHostList) {
             log.info("Check host:[{}], status:[{}], remark:[{}]", tbHost.getIp(), tbHost.getStatus(), tbHost.getRemark());
 
             // check if host check success
@@ -675,25 +687,48 @@ public class HostService {
      * @param hostIdList
      * @return
      */
-    public List<TbHost> selectDistinctHostListById(List<Integer> hostIdList){
+//    public List<TbHost> selectDistinctHostListById(List<Integer> hostIdList){
+//        // distinct repeat hostId
+//        Map<Integer, Long> distinctHostIdMap = hostIdList.stream().collect(Collectors.groupingBy(h -> h, Collectors.counting()));
+//        log.info("selectDistinctHostListById distinctHostIdMap:{}", distinctHostIdMap);
+//        // mark repeat time in Host's remark
+//        List<TbHost> hostList = new ArrayList<>();
+//        for (Integer hostId: distinctHostIdMap.keySet()) {
+//            int count = 0;
+//            Long repeatTime = distinctHostIdMap.get(hostId);
+//            count = repeatTime.intValue();
+//
+//            TbHost host = tbHostMapper.selectByPrimaryKey(hostId);
+//            if (host == null) {
+//                throw new NodeMgrException(ConstantCode.HOST_NOT_EXIST);
+//            }
+//            // store repeat time as node count
+//            host.setRemark(String.valueOf(count));
+//            // add in list
+//            hostList.add(host);
+//        }
+//        return hostList;
+//    }
+
+    public List<HostDTO> selectDistinctHostListById(List<Integer> hostIdList){
         // distinct repeat hostId
         Map<Integer, Long> distinctHostIdMap = hostIdList.stream().collect(Collectors.groupingBy(h -> h, Collectors.counting()));
         log.info("selectDistinctHostListById distinctHostIdMap:{}", distinctHostIdMap);
         // mark repeat time in Host's remark
-        List<TbHost> hostList = new ArrayList<>();
+        List<HostDTO> hostList = new ArrayList<>();
         for (Integer hostId: distinctHostIdMap.keySet()) {
             int count = 0;
             Long repeatTime = distinctHostIdMap.get(hostId);
             count = repeatTime.intValue();
 
-            TbHost host = tbHostMapper.selectByPrimaryKey(hostId);
-            if (host == null) {
+            HostDTO hostDTO = remoteHostService.getHostById(hostId);
+            if (hostDTO == null) {
                 throw new NodeMgrException(ConstantCode.HOST_NOT_EXIST);
             }
             // store repeat time as node count
-            host.setRemark(String.valueOf(count));
+            hostDTO.setRemark(String.valueOf(count));
             // add in list
-            hostList.add(host);
+            hostList.add(hostDTO);
         }
         return hostList;
     }

@@ -13,6 +13,8 @@
  */
 package com.webank.webase.node.mgr.front;
 
+import com.qctc.host.api.RemoteHostService;
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.enums.DataStatus;
 import com.webank.webase.node.mgr.base.enums.FrontStatusEnum;
@@ -89,6 +91,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.logging.log4j.Level;
 import org.fisco.bcos.sdk.client.protocol.response.NodeInfo.NodeInformation;
 import org.fisco.bcos.sdk.client.protocol.response.SyncStatus.SyncStatusInfo;
@@ -167,6 +170,9 @@ public class FrontService {
     private VersionProperties versionProperties;
     // interval of check front status
     private static final Long CHECK_FRONT_STATUS_WAIT_MIN_MILLIS = 3000L;
+
+    @DubboReference
+    private RemoteHostService remoteHostService;
 
     /**
      * refresh front, group, frontGroupMap, nodeList
@@ -925,7 +931,9 @@ public class FrontService {
                 log.error("batchScpNodeConfigIni cannot find front of nodeId:{}", nodeId);
                 continue;
             }
-            TbHost host = this.tbHostMapper.selectByPrimaryKey(front.getHostId());
+//            TbHost host = this.tbHostMapper.selectByPrimaryKey(front.getHostId());
+
+            HostDTO hostDTO = remoteHostService.getHostById(front.getHostId());
 
             // scp multi
             Future<?> task = threadPoolTaskScheduler.submit(() -> {
@@ -940,26 +948,26 @@ public class FrontService {
 
                     // ex: (node-mgr local) /opt/fisco/chain1/node0/config.ini
                     String remoteDst = String
-                        .format("%s/%s/node%s/config.ini", host.getRootDir(), chain.getChainName(),
+                        .format("%s/%s/node%s/config.ini", hostDTO.getRootDir(), chain.getChainName(),
                             hostIndex);
 
                     // copy group config files to local node's conf dir
-                    ansibleService.scp(ScpTypeEnum.UP, host.getIp(), localScr, remoteDst);
+                    ansibleService.scp(ScpTypeEnum.UP, hostDTO.getIp(), localScr, remoteDst);
                     configSuccessCount.incrementAndGet();
                 } catch (Exception e) {
-                    log.error("batchScpNodeConfigIni:[{}] with unknown error", host.getIp(), e);
+                    log.error("batchScpNodeConfigIni:[{}] with unknown error", hostDTO.getIp(), e);
                     this.updateStatus(front.getFrontId(), FrontStatusEnum.ADD_FAILED);
                 } finally {
                     checkHostLatch.countDown();
                 }
             });
-            taskMap.put(host.getId(), task);
+            taskMap.put(hostDTO.getId(), task);
         }
         // task to scp
         checkHostLatch.await(constant.getExecScpTimeout(), TimeUnit.MILLISECONDS);
         log.info("Verify batchScpNodeConfigIni timeout");
         taskMap.forEach((key, value) -> {
-            int hostId = key;
+            Integer hostId = key;
             Future<?> task = value;
             if (!task.isDone()) {
                 log.error("batchScpNodeConfigIni host:[{}] timeout, cancel the task.", hostId);
