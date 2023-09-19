@@ -135,6 +135,21 @@ public class HostService {
                 .insert(ip, rootDir, hostStatusEnum, remark);
     }
 
+    public void checkPingAndDir(String ip, String rootDir)
+            throws NodeMgrException {
+        // check
+        log.info("check host ip accessible:{}", ip);
+        ansibleService.execPing(ip);
+        // check 127.0.0.1
+        this.validateAllLocalhostOrNot(ip);
+        log.info("check host root dir accessible:{}", rootDir);
+        ExecuteResult execResult = ansibleService.execCreateDir(ip, rootDir);
+        if (execResult.failed()) {
+            log.error("host create rootDir:{} failed", rootDir);
+            throw new NodeMgrException(ConstantCode.HOST_ROOT_DIR_ACCESS_DENIED);
+        }
+    }
+
 
     @Transactional(propagation = Propagation.REQUIRED)
     public TbHost insert(String ip, String rootDir, HostStatusEnum hostStatusEnum, String remark) throws NodeMgrException {
@@ -596,6 +611,9 @@ public class HostService {
         ProgressTools.setHostCheck();
         for (final HostDTO tbHost : tbHostList) {
             log.info("Check host:[{}], status:[{}], remark:[{}]", tbHost.getIp(), tbHost.getStatus(), tbHost.getRemark());
+
+            // 检查主机是否ping通，创建部署文件夹
+            checkPingAndDir(tbHost.getIp(), tbHost.getRootDir());
 
             // check if host check success
             Future<?> task = threadPoolTaskScheduler.submit(() -> {

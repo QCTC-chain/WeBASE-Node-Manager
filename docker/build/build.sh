@@ -98,6 +98,8 @@ cd "${__root}" && chmod +x ./gradlew && ./gradlew clean build -x test
 ## docker build
 cd "${__root}"/dist
 
+cp ../docker/openssl-1.1.1q.tar.gz ./
+
 docker build -t ${image_repository}:${new_tag} -f "${__root}"/docker/build/Dockerfile .
 docker tag "${image_repository}:${new_tag}" "${image_repository}:${latest_tag}"
 
