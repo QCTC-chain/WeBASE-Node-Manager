@@ -35,7 +35,6 @@ import com.webank.webase.node.mgr.deploy.entity.IpConfigParse;
 import com.webank.webase.node.mgr.deploy.entity.NodeConfig;
 import com.webank.webase.node.mgr.deploy.entity.TbChain;
 import com.webank.webase.node.mgr.deploy.entity.TbHost;
-import com.webank.webase.node.mgr.deploy.mapper.TbHostMapper;
 import com.webank.webase.node.mgr.front.FrontMapper;
 import com.webank.webase.node.mgr.front.FrontService;
 import com.webank.webase.node.mgr.front.entity.TbFront;
@@ -79,7 +78,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class HostService {
 
-    @Autowired private TbHostMapper tbHostMapper;
+//    @Autowired private TbHostMapper tbHostMapper;
     @Autowired private FrontMapper frontMapper;
 
     @Autowired private ConstantProperties constant;
@@ -109,31 +108,31 @@ public class HostService {
         return remoteHostService.updateHostStatus(hostId, newStatus.getId(), remark);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public TbHost checkDirAndInsert(String ip, String rootDir, HostStatusEnum hostStatusEnum, String remark)
-        throws NodeMgrException {
-
-        TbHost host = this.tbHostMapper.getByIp(ip);
-        if (host != null){
-            log.error("host already exist ip:{}", ip);
-            throw new NodeMgrException(ConstantCode.HOST_ALREADY_EXIST);
-        }
-        // check before add
-        log.info("check host ip accessible:{}", ip);
-        ansibleService.execPing(ip);
-        // check 127.0.0.1
-        this.validateAllLocalhostOrNot(ip);
-        log.info("check host root dir accessible:{}", rootDir);
-        ExecuteResult execResult = ansibleService.execCreateDir(ip, rootDir);
-        if (execResult.failed()) {
-            log.error("host create rootDir:{} failed", rootDir);
-            throw new NodeMgrException(ConstantCode.HOST_ROOT_DIR_ACCESS_DENIED);
-        }
-
-        // fix call transaction in the same class
-        return ((HostService) AopContext.currentProxy())
-                .insert(ip, rootDir, hostStatusEnum, remark);
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public TbHost checkDirAndInsert(String ip, String rootDir, HostStatusEnum hostStatusEnum, String remark)
+//        throws NodeMgrException {
+//
+//        TbHost host = this.tbHostMapper.getByIp(ip);
+//        if (host != null){
+//            log.error("host already exist ip:{}", ip);
+//            throw new NodeMgrException(ConstantCode.HOST_ALREADY_EXIST);
+//        }
+//        // check before add
+//        log.info("check host ip accessible:{}", ip);
+//        ansibleService.execPing(ip);
+//        // check 127.0.0.1
+//        this.validateAllLocalhostOrNot(ip);
+//        log.info("check host root dir accessible:{}", rootDir);
+//        ExecuteResult execResult = ansibleService.execCreateDir(ip, rootDir);
+//        if (execResult.failed()) {
+//            log.error("host create rootDir:{} failed", rootDir);
+//            throw new NodeMgrException(ConstantCode.HOST_ROOT_DIR_ACCESS_DENIED);
+//        }
+//
+//        // fix call transaction in the same class
+//        return ((HostService) AopContext.currentProxy())
+//                .insert(ip, rootDir, hostStatusEnum, remark);
+//    }
 
     public void checkPingAndDir(String ip, String rootDir)
             throws NodeMgrException {
@@ -151,16 +150,16 @@ public class HostService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public TbHost insert(String ip, String rootDir, HostStatusEnum hostStatusEnum, String remark) throws NodeMgrException {
-        log.info("start checkDirAndInsert ip:{}, rootDir:{}, hostStatusEnum:{}, remark:{}", ip, rootDir, hostStatusEnum, remark);
-        TbHost host = TbHost.init(ip, rootDir, hostStatusEnum, remark);
-
-        if ( tbHostMapper.insertSelective(host) != 1 || host.getId() <= 0) {
-            throw new NodeMgrException(ConstantCode.INSERT_HOST_ERROR);
-        }
-        return host;
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public TbHost insert(String ip, String rootDir, HostStatusEnum hostStatusEnum, String remark) throws NodeMgrException {
+//        log.info("start checkDirAndInsert ip:{}, rootDir:{}, hostStatusEnum:{}, remark:{}", ip, rootDir, hostStatusEnum, remark);
+//        TbHost host = TbHost.init(ip, rootDir, hostStatusEnum, remark);
+//
+//        if ( tbHostMapper.insertSelective(host) != 1 || host.getId() <= 0) {
+//            throw new NodeMgrException(ConstantCode.INSERT_HOST_ERROR);
+//        }
+//        return host;
+//    }
 
 
     /**
@@ -410,7 +409,7 @@ public class HostService {
      * when add node
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public void generateHostSDKCertAndScp(byte encryptType, String chainName, TbHost host, String agencyName)
+    public void generateHostSDKCertAndScp(byte encryptType, String chainName, HostDTO host, String agencyName)
         throws NodeMgrException {
         log.info("start generateHostSDKCertAndScp encryptType:{},chainName:{},host:{},agencyName:{}",
             encryptType, chainName, host, agencyName);
@@ -452,7 +451,7 @@ public class HostService {
      * @param host
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    private void scpHostSdkCert(String chainName, TbHost host) {
+    private void scpHostSdkCert(String chainName, HostDTO host) {
         log.info("start scpHostSdkCert chainName:{},host:{}", chainName, host);
         String ip = host.getIp();
         // host's sdk path
@@ -487,24 +486,25 @@ public class HostService {
      * delete host by
      * @param hostId
      */
-    @Transactional
-    public void deleteHostWithoutNode(int hostId){
-        log.info("deleteHostWithoutNode hostId:{}", hostId);
-        TbHost host = this.tbHostMapper.selectByPrimaryKey(hostId);
-        if (host == null){
-            log.warn("Host:[{}] not exists.", hostId);
-            throw new NodeMgrException(ConstantCode.HOST_NOT_EXIST);
-        }
-
-        List<TbFront> frontList = this.frontMapper.selectByHostId(hostId);
-        if (CollectionUtils.isEmpty(frontList)) {
-            this.tbHostMapper.deleteByPrimaryKey(hostId);
-            log.warn("Delete host:[{}].", hostId);
-        } else {
-            log.error("host still have node on it");
-            throw new NodeMgrException(ConstantCode.DELETE_HOST_FAIL_FOR_STILL_CONTAIN_NODE);
-        }
-    }
+//    @Transactional
+//    public void deleteHostWithoutNode(int hostId){
+//        log.info("deleteHostWithoutNode hostId:{}", hostId);
+////        TbHost host = this.tbHostMapper.selectByPrimaryKey(hostId);
+//        HostDTO hostDTO = remoteHostService.getHostById(hostId);
+//        if (hostDTO == null){
+//            log.warn("Host:[{}] not exists.", hostId);
+//            throw new NodeMgrException(ConstantCode.HOST_NOT_EXIST);
+//        }
+//
+//        List<TbFront> frontList = this.frontMapper.selectByHostId(hostId);
+//        if (CollectionUtils.isEmpty(frontList)) {
+//            this.tbHostMapper.deleteByPrimaryKey(hostId);
+//            log.warn("Delete host:[{}].", hostId);
+//        } else {
+//            log.error("host still have node on it");
+//            throw new NodeMgrException(ConstantCode.DELETE_HOST_FAIL_FOR_STILL_CONTAIN_NODE);
+//        }
+//    }
 
 
     /**
@@ -840,11 +840,11 @@ public class HostService {
         log.info("check all hosts to add node hostIdList:{}", hostIdList);
         AtomicBoolean allHostInitSuccess = new AtomicBoolean(true);
         hostIdList.forEach(hId -> {
-            TbHost host = tbHostMapper.selectByPrimaryKey(hId);
-            if (host == null) {
+            HostDTO hostDTO = remoteHostService.getHostById(hId);
+            if (hostDTO == null) {
                 throw new NodeMgrException(ConstantCode.HOST_NOT_EXIST);
             }
-            if (HostStatusEnum.INIT_SUCCESS.getId() != host.getStatus()) {
+            if (HostStatusEnum.INIT_SUCCESS.getId() != hostDTO.getStatus()) {
                 allHostInitSuccess.set(false);
             }
         });
@@ -898,37 +898,37 @@ public class HostService {
      * if 127.0.0.1 was added first, then check
      * @param ip
      */
-    @Deprecated
-    private void validateHostLocalIp(String ip) {
-        if (IPUtil.isLocal(ip)) {
-            // if ip is 127.0.0.1, check all other host ip
-            List<TbHost> hostList = tbHostMapper.selectAll();
-            // 127.0.0.1 is the first host
-            if (hostList == null || hostList.isEmpty()) {
-                log.info("host list empty, skip check local");
-                return;
-            } else {
-                List<String> ipList = hostList.stream().map(TbHost::getIp)
-                    .collect(Collectors.toList());
-                if (!ansibleService.checkLocalIp(ipList)) {
-                    log.error("same host of local ip:{}", ip);
-                    throw new NodeMgrException(ConstantCode.SAME_HOST_ERROR);
-                }
-            }
-        } else {
-            // check whether 127.0.0.1 in tb_host
-            TbHost hostOfLocalIp = tbHostMapper.getByIp(LOCAL_IP_127);
-            if (hostOfLocalIp == null) {
-                log.info("host of 127.0.0.1 not in tb_host, skip check local");
-                return;
-            }
-            // 127.0.0.1 existed in tb_host, check this ip whether same with 127.0.0.1
-            if (!ansibleService.checkLocalIp(Collections.singletonList(ip))) {
-                log.error("same host of local ip:{}", ip);
-                throw new NodeMgrException(ConstantCode.SAME_HOST_ERROR);
-            }
-        }
-    }
+//    @Deprecated
+//    private void validateHostLocalIp(String ip) {
+//        if (IPUtil.isLocal(ip)) {
+//            // if ip is 127.0.0.1, check all other host ip
+//            List<TbHost> hostList = tbHostMapper.selectAll();
+//            // 127.0.0.1 is the first host
+//            if (hostList == null || hostList.isEmpty()) {
+//                log.info("host list empty, skip check local");
+//                return;
+//            } else {
+//                List<String> ipList = hostList.stream().map(TbHost::getIp)
+//                    .collect(Collectors.toList());
+//                if (!ansibleService.checkLocalIp(ipList)) {
+//                    log.error("same host of local ip:{}", ip);
+//                    throw new NodeMgrException(ConstantCode.SAME_HOST_ERROR);
+//                }
+//            }
+//        } else {
+//            // check whether 127.0.0.1 in tb_host
+//            TbHost hostOfLocalIp = tbHostMapper.getByIp(LOCAL_IP_127);
+//            if (hostOfLocalIp == null) {
+//                log.info("host of 127.0.0.1 not in tb_host, skip check local");
+//                return;
+//            }
+//            // 127.0.0.1 existed in tb_host, check this ip whether same with 127.0.0.1
+//            if (!ansibleService.checkLocalIp(Collections.singletonList(ip))) {
+//                log.error("same host of local ip:{}", ip);
+//                throw new NodeMgrException(ConstantCode.SAME_HOST_ERROR);
+//            }
+//        }
+//    }
 
     /**
      * @case: if 127.0.0.1 added, cannot add other ip, only 127.0.0.1 support
@@ -938,7 +938,8 @@ public class HostService {
         log.info("check validateAllLocalhostOrNot ip:{}",ip);
         if (LOCAL_IP_127.equals(ip) || LOCAL_IP_host.equalsIgnoreCase(ip)) {
             // if ip is 127.0.0.1, check all other host ip
-            List<TbHost> hostList = tbHostMapper.selectAll();
+//            List<TbHost> hostList = tbHostMapper.selectAll();
+            List<HostDTO> hostList = remoteHostService.getHostList();
             // 127.0.0.1 is the first host, pass
             if (hostList == null || hostList.isEmpty()) {
                 log.info("host list empty, skip check local");
@@ -950,7 +951,8 @@ public class HostService {
             }
         } else {
             // check whether 127.0.0.1 in tb_host
-            TbHost hostOfLocalIp = tbHostMapper.getByIp(LOCAL_IP_127);
+//            TbHost hostOfLocalIp = tbHostMapper.getByIp(LOCAL_IP_127);
+            HostDTO hostOfLocalIp = remoteHostService.getHostByIp(LOCAL_IP_127);
             if (hostOfLocalIp == null) {
                 log.info("host of 127.0.0.1 not in tb_host, skip check local");
                 return;

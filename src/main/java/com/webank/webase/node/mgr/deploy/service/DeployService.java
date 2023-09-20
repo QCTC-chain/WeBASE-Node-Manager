@@ -14,6 +14,8 @@
 
 package com.webank.webase.node.mgr.deploy.service;
 
+import com.qctc.host.api.RemoteHostService;
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.code.RetCode;
 import com.webank.webase.node.mgr.base.enums.ChainStatusEnum;
@@ -21,46 +23,25 @@ import com.webank.webase.node.mgr.base.enums.FrontStatusEnum;
 import com.webank.webase.node.mgr.base.enums.HostStatusEnum;
 import com.webank.webase.node.mgr.base.enums.OptionType;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
-import com.webank.webase.node.mgr.config.properties.ConstantProperties;
-import com.webank.webase.node.mgr.tools.IPUtil;
-import com.webank.webase.node.mgr.tools.NetUtils;
 import com.webank.webase.node.mgr.cert.CertService;
+import com.webank.webase.node.mgr.config.properties.ConstantProperties;
 import com.webank.webase.node.mgr.deploy.chain.ChainService;
-import com.webank.webase.node.mgr.deploy.entity.DeployNodeInfo;
-import com.webank.webase.node.mgr.deploy.entity.NodeConfig;
-import com.webank.webase.node.mgr.deploy.entity.ReqAddNode;
-import com.webank.webase.node.mgr.deploy.entity.TbAgency;
-import com.webank.webase.node.mgr.deploy.entity.TbChain;
-import com.webank.webase.node.mgr.deploy.entity.TbConfig;
-import com.webank.webase.node.mgr.deploy.entity.TbHost;
+import com.webank.webase.node.mgr.deploy.entity.*;
 import com.webank.webase.node.mgr.deploy.mapper.TbChainMapper;
 import com.webank.webase.node.mgr.deploy.mapper.TbConfigMapper;
-import com.webank.webase.node.mgr.deploy.mapper.TbHostMapper;
 import com.webank.webase.node.mgr.front.FrontMapper;
 import com.webank.webase.node.mgr.front.FrontService;
 import com.webank.webase.node.mgr.front.entity.TbFront;
 import com.webank.webase.node.mgr.group.GroupService;
 import com.webank.webase.node.mgr.node.NodeService;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import com.webank.webase.node.mgr.tools.IPUtil;
+import com.webank.webase.node.mgr.tools.NetUtils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,6 +50,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 @Log4j2
 @Component
 public class DeployService {
@@ -76,7 +68,7 @@ public class DeployService {
     @Autowired private TbConfigMapper tbConfigMapper;
     @Autowired private TbChainMapper tbChainMapper;
     @Autowired private FrontMapper frontMapper;
-    @Autowired private TbHostMapper tbHostMapper;
+//    @Autowired private TbHostMapper tbHostMapper;
 
     @Autowired private AgencyService agencyService;
     @Autowired private HostService hostService;
@@ -91,6 +83,9 @@ public class DeployService {
 
     @Qualifier(value = "deployAsyncScheduler")
     @Autowired private ThreadPoolTaskScheduler threadPoolTaskScheduler;
+
+    @DubboReference
+    private RemoteHostService remoteHostService;
 
     /**
      * generate chain config and front config in db, scp to remote and async start
@@ -284,12 +279,13 @@ public class DeployService {
         for (Integer hostId : hostIdAndInfoMap.keySet()) {
             Instant startTime = Instant.now();
             log.info("addNodes hostId:{}, startTime:{}", hostId, startTime.toEpochMilli());
-            TbHost tbHost = tbHostMapper.selectByPrimaryKey(hostId);
+//            TbHost tbHost = tbHostMapper.selectByPrimaryKey(hostId);
+            HostDTO hostDTO = remoteHostService.getHostById(hostId);
             List<DeployNodeInfo> nodeListOnSameHost = hostIdAndInfoMap.get(hostId);
 
             // generate new sdk cert and scp to host
             log.info("addNodes generateHostSDKCertAndScp");
-            hostService.generateHostSDKCertAndScp(chain.getEncryptType(), chain.getChainName(), tbHost, agency.getAgencyName());
+            hostService.generateHostSDKCertAndScp(chain.getEncryptType(), chain.getChainName(), hostDTO, agency.getAgencyName());
             //hostService.scpHostSdkCert(chainName, tbHost);
             log.info("addNodes after generateHostSDKCertAndScp usedTime:{}", Duration.between(startTime, Instant.now()).toMillis());
 
@@ -303,7 +299,7 @@ public class DeployService {
                 // gen node cert and gen front's yml
                 log.info("addNodes initFrontAndNode");
                 List<TbFront> newFrontList = frontService.initFrontAndNode(nodeListOnSameHost, chain,
-                    tbHost, agency.getId(), agency.getAgencyName(), groupId, FrontStatusEnum.ADDING);
+                    hostDTO, agency.getId(), agency.getAgencyName(), groupId, FrontStatusEnum.ADDING);
                 log.info("addNodes after initFrontAndNode usedTime:{}", Duration.between(startTime, Instant.now()).toMillis());
 
                 // generate(or update existed) related node config files
@@ -314,9 +310,9 @@ public class DeployService {
 
                 // generate(or update existed) new group(node) config files and scp to remote
                 log.info("addNodes generateNewNodesGroupConfigsAndScp chain:{},groupId:{},ip:{},newFrontList:{}",
-                    chain, groupId, tbHost.getIp(), newFrontList);
+                    chain, groupId, hostDTO.getIp(), newFrontList);
                 groupService.generateNewNodesGroupConfigsAndScp(chain, groupId,
-                    tbHost.getIp(), newFrontList);
+                    hostDTO.getIp(), newFrontList);
                 log.info("addNodes after generateNewNodesGroupConfigsAndScp usedTime:{}", Duration.between(startTime, Instant.now()).toMillis());
 
                 // init host
@@ -414,7 +410,8 @@ public class DeployService {
         }
 
         TbChain chain = this.tbChainMapper.selectByPrimaryKey(front.getChainId());
-        TbHost host = this.tbHostMapper.selectByPrimaryKey(front.getHostId());
+//        TbHost host = this.tbHostMapper.selectByPrimaryKey(front.getHostId());
+        HostDTO host = remoteHostService.getHostById(front.getHostId());
         final byte encryptType = chain.getEncryptType();
 
         // get delete node's group id list from ./NODES_ROOT/default_chain/ip/node[x]/conf/group.[groupId].genesis
@@ -532,7 +529,8 @@ public class DeployService {
         for (final Integer hostId : hostIdAndInfoMap.keySet()) {
             Instant startTime = Instant.now();
             log.info("batchAddNode hostId:{}, startTime:{}", hostId, startTime.toEpochMilli());
-            TbHost tbHost = tbHostMapper.selectByPrimaryKey(hostId);
+//            TbHost tbHost = tbHostMapper.selectByPrimaryKey(hostId);
+            HostDTO tbHost = remoteHostService.getHostById(hostId);
             List<DeployNodeInfo> nodeListOnSameHost = hostIdAndInfoMap.get(hostId);
             Future<?> task = threadPoolTaskScheduler.submit(() -> {
                 try {

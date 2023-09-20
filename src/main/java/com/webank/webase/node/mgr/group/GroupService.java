@@ -15,6 +15,8 @@ package com.webank.webase.node.mgr.group;
 
 import static com.webank.webase.node.mgr.base.code.ConstantCode.INSERT_GROUP_ERROR;
 
+import com.qctc.host.api.RemoteHostService;
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.contract.abi.AbiService;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
@@ -39,7 +41,6 @@ import com.webank.webase.node.mgr.contract.ContractService;
 import com.webank.webase.node.mgr.deploy.entity.NodeConfig;
 import com.webank.webase.node.mgr.deploy.entity.TbChain;
 import com.webank.webase.node.mgr.deploy.entity.TbHost;
-import com.webank.webase.node.mgr.deploy.mapper.TbHostMapper;
 import com.webank.webase.node.mgr.deploy.service.AnsibleService;
 import com.webank.webase.node.mgr.deploy.service.DeployShellService;
 import com.webank.webase.node.mgr.deploy.service.PathService;
@@ -91,6 +92,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -111,8 +113,8 @@ public class GroupService {
 
     @Autowired
     private GroupMapper groupMapper;
-    @Autowired
-    private TbHostMapper tbHostMapper;
+//    @Autowired
+//    private TbHostMapper tbHostMapper;
     @Autowired
     private FrontMapper frontMapper;
 
@@ -164,6 +166,9 @@ public class GroupService {
     @Lazy
     private ChainService chainService;
     @Autowired private AnsibleService ansibleService;
+
+    @DubboReference
+    private RemoteHostService remoteHostService;
 
     public static final String RUNNING_GROUP = "RUNNING";
     public static final String OPERATE_START_GROUP = "start";
@@ -1178,7 +1183,8 @@ public class GroupService {
         }
         String chainName = tbFront.getChainName();
         int nodeIndex = tbFront.getHostIndex();
-        TbHost tbHost = tbHostMapper.selectByPrimaryKey(tbFront.getHostId());
+//        TbHost tbHost = tbHostMapper.selectByPrimaryKey(tbFront.getHostId());
+        HostDTO tbHost = remoteHostService.getHostById(tbFront.getHostId());
 
         // scp group config files from remote to local
         // path pattern: /host.getRootDir/chain_name
@@ -1208,7 +1214,8 @@ public class GroupService {
         }
         String chainName = tbFront.getChainName();
         int nodeIndex = tbFront.getHostIndex();
-        TbHost tbHost = tbHostMapper.selectByPrimaryKey(tbFront.getHostId());
+//        TbHost tbHost = tbHostMapper.selectByPrimaryKey(tbFront.getHostId());
+        HostDTO tbHost = remoteHostService.getHostById(tbFront.getHostId());
         // scp group status files from remote to local
         // path pattern: /host.getRootDir/chain_name
         // ex: (in the remote host) /opt/fisco/chain1
@@ -1287,7 +1294,8 @@ public class GroupService {
             // NODES_ROOT/[chainName]/[ip]/node[index] as a {@link Path}, a directory.
             String src = String.format("%s", nodeRoot.toAbsolutePath().toString());
             // get host root dir
-            TbHost tbHost = tbHostMapper.getByIp(ip);
+//            TbHost tbHost = tbHostMapper.getByIp(ip);
+            HostDTO tbHost = remoteHostService.getHostByIp(ip);
             String dst = PathService.getChainRootOnHost(tbHost.getRootDir(), chainName);
 
             log.info("generateNewNodesGroupConfigsAndScp Send files from:[{}] to:[{}:{}].", src, ip, dst);
