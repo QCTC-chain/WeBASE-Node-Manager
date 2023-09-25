@@ -896,7 +896,7 @@ public class FrontService {
             String remoteDst = String.format("%s/%s/node%s/config.ini", hostDTO.getRootDir(), chain.getChainName(),hostIndex);
 
             // copy group config files to local node's conf dir
-            ansibleService.scp(ScpTypeEnum.UP, hostDTO.getIp(), localScr, remoteDst);
+            ansibleService.scp(ScpTypeEnum.UP, hostDTO, localScr, remoteDst);
         }
     }
 
@@ -945,7 +945,7 @@ public class FrontService {
                             hostIndex);
 
                     // copy group config files to local node's conf dir
-                    ansibleService.scp(ScpTypeEnum.UP, hostDTO.getIp(), localScr, remoteDst);
+                    ansibleService.scp(ScpTypeEnum.UP, hostDTO, localScr, remoteDst);
                     configSuccessCount.incrementAndGet();
                 } catch (Exception e) {
                     log.error("batchScpNodeConfigIni:[{}] with unknown error", hostDTO.getIp(), e);
@@ -1007,13 +1007,13 @@ public class FrontService {
         log.info("Docker start container front id:[{}:{}].", front.getFrontId(), front.getContainerName());
         try {
             this.dockerOptions.run(
-                front.getFrontIp(), front.getImageTag(), front.getContainerName(),
+                hostDTO, front.getImageTag(), front.getContainerName(),
                 PathService.getChainRootOnHost(hostDTO.getRootDir(), front.getChainName()), front.getHostIndex());
 
             threadPoolTaskScheduler.schedule(()-> {
                 // add check port is on
                 // check chain port
-                Pair<Boolean, Integer> notInUse = ansibleService.checkPorts(front.getFrontIp(),
+                Pair<Boolean, Integer> notInUse = ansibleService.checkPorts(hostDTO,
                     front.getP2pPort(), front.getFrontPort());
                 // not in use is true, then not start success
                 if (notInUse.getKey()) {
@@ -1136,8 +1136,9 @@ public class FrontService {
             }
         }
 
+        HostDTO hostDTO = remoteHostService.getHostByIp(front.getFrontIp());
         log.info("Docker stop and remove container front id:[{}:{}].", front.getFrontId(), front.getContainerName());
-        this.dockerOptions.stop( front.getFrontIp(), front.getContainerName());
+        this.dockerOptions.stop( hostDTO, front.getContainerName());
         try {
             Thread.sleep(constant.getDockerRestartPeriodTime());
         } catch (InterruptedException e) {
@@ -1178,8 +1179,10 @@ public class FrontService {
             return ;
         }
 
+        HostDTO hostDTO = remoteHostService.getHostByIp(front.getFrontIp());
+
         log.info("Docker stop and remove container front id:[{}:{}].", front.getFrontId(), front.getContainerName());
-        this.dockerOptions.stop( front.getFrontIp(), front.getContainerName());
+        this.dockerOptions.stop( hostDTO, front.getContainerName());
         try {
             Thread.sleep(constant.getDockerRestartPeriodTime());
         } catch (InterruptedException e) {
@@ -1203,8 +1206,9 @@ public class FrontService {
             throw new NodeMgrException(ConstantCode.NODE_ID_NOT_EXISTS_ERROR);
         }
 //        TbHost hostInDb = host != null ? host : this.tbHostMapper.selectByPrimaryKey(front.getHostId());
+        HostDTO hostDTO = remoteHostService.getHostByIp(front.getFrontIp());
         log.info("Docker stop and remove container front id:[{}:{}].", front.getFrontId(), front.getContainerName());
-        this.dockerOptions.stop( front.getFrontIp(), front.getContainerName());
+        this.dockerOptions.stop( hostDTO, front.getContainerName());
 
         this.nodeMapper.deleteByNodeId(nodeId);
     }
@@ -1230,7 +1234,7 @@ public class FrontService {
             HostDTO hostDTO = remoteHostService.getHostById(front.getHostId());
             log.info("rm host container by host ip:{}", hostDTO.getIp());
             // remote docker container
-            this.dockerOptions.stop(hostDTO.getIp(), front.getContainerName());
+            this.dockerOptions.stop(hostDTO, front.getContainerName());
 
             // delete in deleteAllGroupData
 //            log.info("Delete node data by node id:[{}].", front.getNodeId());

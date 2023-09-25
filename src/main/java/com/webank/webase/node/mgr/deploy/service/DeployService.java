@@ -440,7 +440,7 @@ public class DeployService {
         }
 
         // move node of remote host files to temp directory, e.g./opt/fisco/delete-tmp
-        nodeService.mvNodeOnRemoteHost(host.getIp(), host.getRootDir(), chain.getChainName(), front.getHostIndex(),
+        nodeService.mvNodeOnRemoteHost(host, chain.getChainName(), front.getHostIndex(),
                 front.getNodeId());
 
         // delete front, node in db

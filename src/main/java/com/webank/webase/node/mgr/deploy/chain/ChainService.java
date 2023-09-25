@@ -212,18 +212,18 @@ public class ChainService {
      * @param rootDirOnHost
      * @param chainName
      */
-    public void mvChainOnRemote(String ip, String rootDirOnHost, String chainName){
-        log.info("mvChainOnRemote ip:{}, rootDirHost:{},chainName:{}", ip, rootDirOnHost, chainName);
+    public void mvChainOnRemote(HostDTO hostDTO, String chainName){
+        log.info("mvChainOnRemote ip:{}, rootDirHost:{},chainName:{}", hostDTO.getIp(), hostDTO.getRootDir(), chainName);
         // create /opt/fisco/deleted-tmp/ as a parent dir
-        String deleteRootOnHost = PathService.getDeletedRootOnHost(rootDirOnHost);
-        ansibleService.execCreateDir(ip, deleteRootOnHost);
+        String deleteRootOnHost = PathService.getDeletedRootOnHost(hostDTO.getRootDir());
+        ansibleService.execCreateDir(hostDTO, deleteRootOnHost);
 
         // like /opt/fisco/default_chain
-        String src_chainRootOnHost = PathService.getChainRootOnHost(rootDirOnHost, chainName);
+        String src_chainRootOnHost = PathService.getChainRootOnHost(hostDTO.getRootDir(), chainName);
         // move to /opt/fisco/deleted-tmp/default_chain-yyyyMMdd_HHmmss
-        String dst_chainDeletedRootOnHost = PathService.getChainDeletedRootOnHost(rootDirOnHost, chainName);
+        String dst_chainDeletedRootOnHost = PathService.getChainDeletedRootOnHost(hostDTO.getRootDir(), chainName);
 
-        ansibleService.mvDirOnRemote(ip, src_chainRootOnHost, dst_chainDeletedRootOnHost);
+        ansibleService.mvDirOnRemote(hostDTO, src_chainRootOnHost, dst_chainDeletedRootOnHost);
         log.info("end mvChainOnRemote");
 
     }

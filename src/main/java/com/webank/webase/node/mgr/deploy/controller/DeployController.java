@@ -58,7 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller for node data.
  */
-@Tag(name="链/节点部署")
+@Tag(name="链、节点部署")
 @Log4j2
 @RestController
 @RequestMapping("deploy")

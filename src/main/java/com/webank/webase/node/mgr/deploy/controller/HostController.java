@@ -15,6 +15,7 @@
 package com.webank.webase.node.mgr.deploy.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.host.api.RemoteHostService;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
@@ -27,6 +28,7 @@ import com.webank.webase.node.mgr.tools.JsonTools;
 import com.webank.webase.node.mgr.tools.ValidateUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.log4j.Log4j2;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +53,9 @@ public class HostController extends BaseController {
     private HostService hostService;
     @Autowired
     private AnsibleService ansibleService;
+
+    @DubboReference
+    private RemoteHostService remoteHostService;
 
 //    /**
 //     * list added host
@@ -127,7 +132,7 @@ public class HostController extends BaseController {
         log.info("Start ping:[{}], start:[{}]", JsonTools.toJSONString(reqAddHost), startTime);
         try {
             // check before add
-            ansibleService.execPing(reqAddHost.getSshIp());
+            ansibleService.execPing(remoteHostService.getHostByIp(reqAddHost.getSshIp()));
             return new BaseResponse(ConstantCode.SUCCESS);
         } catch (NodeMgrException e) {
             return new BaseResponse(e.getRetCode());

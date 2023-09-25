@@ -134,17 +134,17 @@ public class HostService {
 //                .insert(ip, rootDir, hostStatusEnum, remark);
 //    }
 
-    public void checkPingAndDir(String ip, String rootDir)
+    public void checkPingAndDir(HostDTO hostDTO)
             throws NodeMgrException {
         // check
-        log.info("check host ip accessible:{}", ip);
-        ansibleService.execPing(ip);
+        log.info("check host ip accessible:{}", hostDTO.getIp());
+        ansibleService.execPing(hostDTO);
         // check 127.0.0.1
-        this.validateAllLocalhostOrNot(ip);
-        log.info("check host root dir accessible:{}", rootDir);
-        ExecuteResult execResult = ansibleService.execCreateDir(ip, rootDir);
+        this.validateAllLocalhostOrNot(hostDTO.getIp());
+        log.info("check host root dir accessible:{}", hostDTO.getRootDir());
+        ExecuteResult execResult = ansibleService.execCreateDir(hostDTO, hostDTO.getRootDir());
         if (execResult.failed()) {
-            log.error("host create rootDir:{} failed", rootDir);
+            log.error("host create rootDir:{} failed", hostDTO.getRootDir());
             throw new NodeMgrException(ConstantCode.HOST_ROOT_DIR_ACCESS_DENIED);
         }
     }
@@ -200,7 +200,7 @@ public class HostService {
 
                             // exec host init shell script
                             try {
-                                ansibleService.execHostInit(tbHost.getIp(), PathService.getChainRootOnHost(tbHost.getRootDir(), chainName));
+                                ansibleService.execHostInit(tbHost, PathService.getChainRootOnHost(tbHost.getRootDir(), chainName));
                             }  catch (NodeMgrException e) {
                                 log.error("Exec initHostAndDocker on host:[{}] failed",
                                     tbHost.getIp(), e);
@@ -221,7 +221,7 @@ public class HostService {
                             log.info("initHostAndDocker pull docker ip:{}, imageTag:{}, imagePullType:{}",
                                 tbHost.getIp(), imageTag, imagePullType);
                             ProgressTools.setPullDocker();
-                            this.dockerOptions.pullImage(tbHost.getIp(), imageTag, imagePullType, tbHost.getRootDir());
+                            this.dockerOptions.pullImage(tbHost, imageTag, imagePullType);
                         } catch (NodeMgrException e) {
                             log.error("Docker pull image on host:[{}] failed",
                                 tbHost.getIp(), e);
@@ -330,7 +330,7 @@ public class HostService {
                         String src = String.format("%s/", pathService.getHost(chainName, tbHost.getIp()).toString());
                         String dst = PathService.getChainRootOnHost(tbHost.getRootDir(), chainName);
                         try {
-                            ansibleService.scp(ScpTypeEnum.UP, tbHost.getIp(), src, dst);
+                            ansibleService.scp(ScpTypeEnum.UP, tbHost, src, dst);
                             log.info("scpConfigHostList Send files from:[{}] to:[{}:{}] success.",
                                 src, tbHost.getIp(), dst);
                         } catch (NodeMgrException e) {
@@ -464,7 +464,7 @@ public class HostService {
         log.info("scpHostSdkCert scp: Send files from:[{}] to:[{}:{}].", src, ip, dst);
         ProgressTools.setScpConfig();
         try {
-            ansibleService.scp(ScpTypeEnum.UP, ip, src, dst);
+            ansibleService.scp(ScpTypeEnum.UP, host, src, dst);
             log.info("Send files from:[{}] to:[{}:{}] success.", src, ip, dst);
         } catch (NodeMgrException e) {
             log.error("scpHostSdkCert Send file to host:[{}] failed", ip, e);
@@ -529,7 +529,7 @@ public class HostService {
         if(CollectionUtils.isNotEmpty(hostList)){
             for (HostDTO host : hostList) {
                 // move chain config files
-                chainService.mvChainOnRemote(host.getIp(), host.getRootDir(), chainName);
+                chainService.mvChainOnRemote(host, chainName);
             }
         }
         // delete host in batch
@@ -585,7 +585,8 @@ public class HostService {
     public void checkImageExists(Set<String> ipSet, String imageTag){
         log.info("checkImageExists ipSet:{}", ipSet);
         for (String ip : ipSet) {
-            boolean exists = this.dockerOptions.checkImageExists(ip, imageTag);
+            HostDTO hostDTO = remoteHostService.getHostByIp(ip);
+            boolean exists = this.dockerOptions.checkImageExists(hostDTO, imageTag);
             if (!exists) {
                 log.error("Docker image:[{}] not exists on host:[{}].", imageTag, ip);
                 throw new NodeMgrException(ConstantCode.IMAGE_NOT_EXISTS_ON_HOST.attach(ip));
@@ -613,7 +614,7 @@ public class HostService {
             log.info("Check host:[{}], status:[{}], remark:[{}]", tbHost.getIp(), tbHost.getStatus(), tbHost.getRemark());
 
             // 检查主机是否ping通，创建部署文件夹
-            checkPingAndDir(tbHost.getIp(), tbHost.getRootDir());
+            checkPingAndDir(tbHost);
 
             // check if host check success
             Future<?> task = threadPoolTaskScheduler.submit(() -> {
@@ -625,7 +626,7 @@ public class HostService {
                         tbHost.getIp(), nodeCount, constant.getHostCheckShell());
                     // check memory every time
                     try {
-                        ansibleService.execHostCheckShell(tbHost.getIp(), nodeCount);
+                        ansibleService.execHostCheckShell(tbHost, nodeCount);
                     } catch (NodeMgrException e) {
                         log.error("Check mem/cpu on host:[{}] failed",
                             tbHost.getIp(), e);
@@ -647,9 +648,9 @@ public class HostService {
                         ProgressTools.setDockerCheck();
                         // exec host check shell script
                         try {
-                            ansibleService.execPing(tbHost.getIp());
+                            ansibleService.execPing(tbHost);
                             // check docker installed, active and no need sudo docker
-                            ansibleService.execDockerCheckShell(tbHost.getIp());
+                            ansibleService.execDockerCheckShell(tbHost);
                         } catch (NodeMgrException e) {
                             log.error("Exec host check shell script on host:[{}] failed",
                                 tbHost.getIp(), e);
@@ -755,66 +756,66 @@ public class HostService {
      * check host chain's port before init host, after check host mem/cpu
      * @related: syncCheckPortHostList， 一个host多个端口时，端口占用的异常会被覆盖，因此采用同步非异步方式检测
      */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public boolean checkPortHostList(List<DeployNodeInfo> deployNodeInfoList) throws InterruptedException {
-        log.info("batchCheckHostList deployNodeInfoList:{}", deployNodeInfoList);
-
-
-        final CountDownLatch checkHostLatch = new CountDownLatch(CollectionUtils.size(deployNodeInfoList));
-        // check success count
-        AtomicInteger checkSuccessCount = new AtomicInteger(0);
-        Map<String, Future> taskMap = new HashedMap<>(); //key is ip+"_"+frontPort
-
-        ProgressTools.setPortCheck();
-        for (final DeployNodeInfo nodeInfo : deployNodeInfoList) {
-            log.info("Check host port:[{}]", nodeInfo.getIp());
-
-            Future<?> task = threadPoolTaskScheduler.submit(() -> {
-                try {
-                    // check chain port
-                    ExecuteResult checkPortResult = ansibleService.checkPortArrayInUse(nodeInfo.getIp(),
-                        nodeInfo.getChannelPort(), nodeInfo.getP2pPort(), nodeInfo.getFrontPort(), nodeInfo.getRpcPort());
-                    // not in use is true
-                    if (!checkPortResult.success()) {
-                        log.error("Port check on host ip:[{}] not passe0d:{}!", nodeInfo.getIp(), checkPortResult.getExecuteOut());
-                        this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_FAILED, checkPortResult.getExecuteOut());
-                        return;
-                    }
-                    this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_SUCCESS, "");
-                    checkSuccessCount.incrementAndGet();
-                } catch (Exception e) {
-                    log.error("Check host port:[{}] with unknown error", nodeInfo.getIp(), e);
-                    this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_FAILED, e.getMessage());
-                } finally {
-                    checkHostLatch.countDown();
-                }
-            });
-            String taskKey = nodeInfo.getIp() + "_" + nodeInfo.getFrontPort();
-            taskMap.put(taskKey, task);
-        }
-        checkHostLatch.await(constant.getExecHostCheckPortTimeout(), TimeUnit.MILLISECONDS);
-        log.info("Verify check_port time");
-        taskMap.forEach((key, value) -> {
-            String frontIpPort = key;
-            Future<?> task = value;
-            if (!task.isDone()) {
-                log.error("Check host port:[{}] timeout, cancel the task.", frontIpPort);
-                String ip = frontIpPort.split("_")[0];
-                int port = Integer.parseInt(frontIpPort.split("_")[1]);
-                TbFront front = frontMapper.getByIpPort(ip, port);
-                this.updateStatus(front.getHostId(), HostStatusEnum.CHECK_FAILED, "Check host port timeout.");
-                task.cancel(false);
-            }
-        });
-
-        boolean hostPorkCheckSuccess = checkSuccessCount.get() == CollectionUtils.size(deployNodeInfoList);
-        // check if all host init success
-        log.log(hostPorkCheckSuccess ? Level.INFO: Level.ERROR,
-            "Host port check result, total:[{}], success:[{}]",
-            CollectionUtils.size(deployNodeInfoList), checkSuccessCount.get());
-
-        return hostPorkCheckSuccess;
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public boolean checkPortHostList(List<DeployNodeInfo> deployNodeInfoList) throws InterruptedException {
+//        log.info("batchCheckHostList deployNodeInfoList:{}", deployNodeInfoList);
+//
+//
+//        final CountDownLatch checkHostLatch = new CountDownLatch(CollectionUtils.size(deployNodeInfoList));
+//        // check success count
+//        AtomicInteger checkSuccessCount = new AtomicInteger(0);
+//        Map<String, Future> taskMap = new HashedMap<>(); //key is ip+"_"+frontPort
+//
+//        ProgressTools.setPortCheck();
+//        for (final DeployNodeInfo nodeInfo : deployNodeInfoList) {
+//            log.info("Check host port:[{}]", nodeInfo.getIp());
+//
+//            Future<?> task = threadPoolTaskScheduler.submit(() -> {
+//                try {
+//                    // check chain port
+//                    ExecuteResult checkPortResult = ansibleService.checkPortArrayInUse(nodeInfo.getIp(),
+//                        nodeInfo.getChannelPort(), nodeInfo.getP2pPort(), nodeInfo.getFrontPort(), nodeInfo.getRpcPort());
+//                    // not in use is true
+//                    if (!checkPortResult.success()) {
+//                        log.error("Port check on host ip:[{}] not passe0d:{}!", nodeInfo.getIp(), checkPortResult.getExecuteOut());
+//                        this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_FAILED, checkPortResult.getExecuteOut());
+//                        return;
+//                    }
+//                    this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_SUCCESS, "");
+//                    checkSuccessCount.incrementAndGet();
+//                } catch (Exception e) {
+//                    log.error("Check host port:[{}] with unknown error", nodeInfo.getIp(), e);
+//                    this.updateStatus(nodeInfo.getHostId(), HostStatusEnum.CHECK_FAILED, e.getMessage());
+//                } finally {
+//                    checkHostLatch.countDown();
+//                }
+//            });
+//            String taskKey = nodeInfo.getIp() + "_" + nodeInfo.getFrontPort();
+//            taskMap.put(taskKey, task);
+//        }
+//        checkHostLatch.await(constant.getExecHostCheckPortTimeout(), TimeUnit.MILLISECONDS);
+//        log.info("Verify check_port time");
+//        taskMap.forEach((key, value) -> {
+//            String frontIpPort = key;
+//            Future<?> task = value;
+//            if (!task.isDone()) {
+//                log.error("Check host port:[{}] timeout, cancel the task.", frontIpPort);
+//                String ip = frontIpPort.split("_")[0];
+//                int port = Integer.parseInt(frontIpPort.split("_")[1]);
+//                TbFront front = frontMapper.getByIpPort(ip, port);
+//                this.updateStatus(front.getHostId(), HostStatusEnum.CHECK_FAILED, "Check host port timeout.");
+//                task.cancel(false);
+//            }
+//        });
+//
+//        boolean hostPorkCheckSuccess = checkSuccessCount.get() == CollectionUtils.size(deployNodeInfoList);
+//        // check if all host init success
+//        log.log(hostPorkCheckSuccess ? Level.INFO: Level.ERROR,
+//            "Host port check result, total:[{}], success:[{}]",
+//            CollectionUtils.size(deployNodeInfoList), checkSuccessCount.get());
+//
+//        return hostPorkCheckSuccess;
+//    }
 
     /**
      * check image before start chain
@@ -867,7 +868,8 @@ public class HostService {
             log.info("Check host port:[{}]", nodeInfo.getIp());
             try {
                 // check chain port
-                ExecuteResult checkPortResult = ansibleService.checkPortArrayInUse(nodeInfo.getIp(),
+                HostDTO hostDTO = remoteHostService.getHostByIp(nodeInfo.getIp());
+                ExecuteResult checkPortResult = ansibleService.checkPortArrayInUse(hostDTO,
                     nodeInfo.getChannelPort(), nodeInfo.getP2pPort(), nodeInfo.getFrontPort(), nodeInfo.getRpcPort());
                 // not in use is true
                 if (!checkPortResult.success()) {

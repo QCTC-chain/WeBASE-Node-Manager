@@ -1201,8 +1201,8 @@ public class GroupService {
         // ex: (node-mgr local) ./NODES_ROOT/chain1/127.0.0.1/node0/conf/group.1001.*
         String localDst = String.format("%s/conf/", localNodePath, generateGroupId);
         // copy group config files to local node's conf dir
-        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost.getIp(), remoteGroupConfSource, localDst);
-        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost.getIp(), remoteGroupGenesisSource, localDst);
+        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost, remoteGroupConfSource, localDst);
+        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost, remoteGroupGenesisSource, localDst);
     }
 
 
@@ -1237,7 +1237,7 @@ public class GroupService {
             }
         }
         // copy group status file to local node's conf dir
-        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost.getIp(), remoteGroupStatusSource, localDst.toAbsolutePath().toString());
+        ansibleService.scp(ScpTypeEnum.DOWNLOAD, tbHost, remoteGroupStatusSource, localDst.toAbsolutePath().toString());
     }
 
 //    private void pullGroupFile(int groupId,TbFront tbFront){
@@ -1301,7 +1301,7 @@ public class GroupService {
             log.info("generateNewNodesGroupConfigsAndScp Send files from:[{}] to:[{}:{}].", src, ip, dst);
             ProgressTools.setScpConfig();
             try {
-                ansibleService.scp(ScpTypeEnum.UP, ip, src, dst);
+                ansibleService.scp(ScpTypeEnum.UP, tbHost, src, dst);
                 log.info("generateNewNodesGroupConfigsAndScp scp success.");
             } catch (Exception e) {
                 log.error("generateNewNodesGroupConfigsAndScp Send files from:[{}] to:[{}:{}] error.", src, ip, dst, e);

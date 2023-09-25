@@ -13,6 +13,7 @@
  */
 package com.webank.webase.node.mgr.node;
 
+import com.qctc.host.api.model.HostDTO;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.enums.ConsensusType;
 import com.webank.webase.node.mgr.base.enums.DataStatus;
@@ -490,13 +491,13 @@ public class NodeService {
      * mv one node on host
      * @related with hostService mvHostChainDirByIdList(batch mv)
      */
-    public void mvNodeOnRemoteHost(String ip, String rooDirOnHost, String chainName, int hostIndex, String nodeId) {
+    public void mvNodeOnRemoteHost(HostDTO hostDTO, String chainName, int hostIndex, String nodeId) {
         // create /opt/fisco/deleted-tmp/default_chain-yyyyMMdd_HHmmss as a parent
-        String chainDeleteRootOnHost = PathService.getChainDeletedRootOnHost(rooDirOnHost, chainName);
-        ansibleService.execCreateDir(ip, chainDeleteRootOnHost);
+        String chainDeleteRootOnHost = PathService.getChainDeletedRootOnHost(hostDTO.getRootDir(), chainName);
+        ansibleService.execCreateDir(hostDTO, chainDeleteRootOnHost);
 
         // e.g. /opt/fisco/default_chain
-        String chainRootOnHost = PathService.getChainRootOnHost(rooDirOnHost, chainName);
+        String chainRootOnHost = PathService.getChainRootOnHost(hostDTO.getRootDir(), chainName);
         // e.g. /opt/fisco/default_chain/node[x]
         String src_nodeRootOnHost = PathService.getNodeRootOnHost(chainRootOnHost, hostIndex);
 
@@ -504,7 +505,7 @@ public class NodeService {
         String dst_nodeDeletedRootOnHost =
                 PathService.getNodeDeletedRootOnHost(chainDeleteRootOnHost, nodeId);
         // move
-        ansibleService.mvDirOnRemote(ip, src_nodeRootOnHost, dst_nodeDeletedRootOnHost);
+        ansibleService.mvDirOnRemote(hostDTO, src_nodeRootOnHost, dst_nodeDeletedRootOnHost);
     }
 
     /**
