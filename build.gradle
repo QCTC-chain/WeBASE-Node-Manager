@@ -131,6 +131,7 @@ dependencies {
     // Sa-Token 权限认证，在线文档：https://sa-token.cc
     implementation 'cn.dev33:sa-token-spring-boot-starter:1.35.0.RC'
     implementation 'cn.dev33:sa-token-jwt:1.35.0.RC'
+    implementation 'cn.dev33:sa-token-dubbo3:1.35.0.RC'
     implementation 'cn.hutool:hutool-extra:5.8.20'
     implementation ('org.redisson:redisson-spring-boot-starter:3.18.0') {
         exclude group: "redisson-spring-data-30"
