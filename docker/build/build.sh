@@ -36,7 +36,7 @@ __root=$(realpath -s "${__root}")
 
 
 ########################### properties config ##########################
-image_organization=webasepro
+image_organization=registry.cn-beijing.aliyuncs.com/qchain
 image_name="webase-node-mgr"
 docker_push="no"
 latest_tag=latest
