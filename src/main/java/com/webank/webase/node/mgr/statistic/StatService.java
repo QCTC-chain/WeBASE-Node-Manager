@@ -393,7 +393,7 @@ public class StatService {
 
                     TotalTransCountInfo transCountInfo = frontInterface.getTotalTransactionCount(group.getGroupId());
                     if (transCountInfo != null) {
-                        transCount += transCountInfo.getBlockNumber().longValue();
+                        transCount += transCountInfo.getTxSum().longValue();
                     }
                 }
             }
