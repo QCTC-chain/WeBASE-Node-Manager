@@ -70,6 +70,4 @@ public class StatController {
         ChainStat chainStat = statService.getChainStat();
         return new BaseResponse(ConstantCode.SUCCESS, chainStat);
     }
-
-
 }

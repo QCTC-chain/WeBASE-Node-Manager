@@ -16,6 +16,8 @@
 package com.webank.webase.node.mgr.precompiled;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.precompiled.entity.AddressStatusHandle;
@@ -98,6 +100,7 @@ public class PrecompiledController extends BaseController {
         return result;
     }
 
+    @Log(title = "BCOS2/节点管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:chain:nodeManage")
     @PostMapping(value = "consensus")
     public Object nodeManage(@RequestBody @Valid ConsensusHandle consensusHandle,
@@ -118,6 +121,7 @@ public class PrecompiledController extends BaseController {
     /**
      * crud control.
      */
+    @Log(title = "BCOS2/合约管理/CRUD", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:contract:crud")
     @PostMapping(value = "crud")
     public Object crud(@RequestBody @Valid CrudHandle crudHandle,
@@ -138,6 +142,7 @@ public class PrecompiledController extends BaseController {
     /**
      * contract status control.
      */
+    @Log(title = "BCOS2/合约管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:contract:contractStatusManage")
     @PostMapping(value = "contract/status")
     public Object contractStatusManage(@RequestBody @Valid ContractStatusHandle contractStatusHandle,

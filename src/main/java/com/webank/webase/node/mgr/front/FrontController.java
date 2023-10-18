@@ -15,6 +15,8 @@ package com.webank.webase.node.mgr.front;
 
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -61,6 +63,7 @@ public class FrontController extends BaseController {
     /**
      * refresh frontn
      */
+    @Log(title = "BCOS2/节点管理", businessType = BusinessType.UPDATE)
     @GetMapping("/refresh")
     public BaseResponse refreshFront() {
     	Instant startTime = Instant.now();
@@ -74,6 +77,7 @@ public class FrontController extends BaseController {
     /**
      * add new front
      */
+    @Log(title = "BCOS2/节点管理", businessType = BusinessType.INSERT)
     @PostMapping("/new")
     public BaseResponse newFront(@RequestBody @Valid FrontInfo frontInfo, BindingResult result) {
         checkBindResult(result);
@@ -125,6 +129,7 @@ public class FrontController extends BaseController {
     /**
      * delete by frontId
      */
+    @Log(title = "BCOS2/节点管理", businessType = BusinessType.DELETE)
     @DeleteMapping(value = "/{frontId}")
     public BaseResponse removeFront(@PathVariable("frontId") Integer frontId) {
         Instant startTime = Instant.now();
@@ -143,6 +148,7 @@ public class FrontController extends BaseController {
     /**
      * query front info list.
      */
+    @Log(title = "BCOS2/节点管理", businessType = BusinessType.UPDATE)
     @GetMapping(value = "/refresh/status")
     public BaseResponse refreshFrontStatus() throws NodeMgrException {
         Instant startTime = Instant.now();

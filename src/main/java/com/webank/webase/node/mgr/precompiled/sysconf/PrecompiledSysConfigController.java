@@ -16,6 +16,8 @@
 package com.webank.webase.node.mgr.precompiled.sysconf;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.webank.webase.node.mgr.precompiled.entity.SysConfigParam;
 import java.time.Duration;
 import java.time.Instant;
@@ -76,6 +78,7 @@ public class PrecompiledSysConfigController extends BaseController {
     /**
      * set system config by key.
      */
+    @Log(title = "BCOS2/系统管理/配置管理", businessType = BusinessType.UPDATE)
     @PostMapping(value = "config")
     // TODO:  使用sa-token鉴权
 // @PreAuthorize(ConstantProperties.HAS_ROLE_ADMIN)

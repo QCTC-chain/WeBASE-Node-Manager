@@ -15,6 +15,8 @@ package com.webank.webase.node.mgr.user;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.qctc.common.satoken.utils.LoginHelper;
 import com.qctc.system.api.RemoteUserService;
 import com.qctc.system.api.model.LoginUser;
@@ -84,6 +86,7 @@ public class UserController extends BaseController {
     /**
      * add new user info.
      */
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.INSERT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/userInfo")
     public BaseResponse addUserInfo(@RequestBody @Valid NewUserInputParam user,
@@ -108,6 +111,7 @@ public class UserController extends BaseController {
     /**
      * bind user info. (add public key user, different from bind private key)
      */
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.INSERT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/bind")
     public BaseResponse bindUserInfo(@RequestBody @Valid BindUserInputParam user,
@@ -131,6 +135,7 @@ public class UserController extends BaseController {
     /**
      * update user info of description
      */
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PutMapping(value = "/userInfo")
     public BaseResponse updateUserInfo(@RequestBody @Valid UpdateUserInputParam user,
@@ -196,6 +201,7 @@ public class UserController extends BaseController {
         return pageResponse;
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.IMPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/import")
     public BaseResponse importPrivateKey(@Valid @RequestBody ReqImportPrivateKey reqImport,
@@ -220,6 +226,7 @@ public class UserController extends BaseController {
         return baseResponse;
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.IMPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/importPem")
     public BaseResponse importPemPrivateKey(@Valid @RequestBody ReqImportPem reqImportPem,
@@ -245,6 +252,7 @@ public class UserController extends BaseController {
         return baseResponse;
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.IMPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/importP12")
     public BaseResponse importP12PrivateKey(@RequestParam MultipartFile p12File,
@@ -272,6 +280,7 @@ public class UserController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS);
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.EXPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/exportPem")
     public ResponseEntity<InputStreamResource> exportPemUserFromSign(@RequestBody ReqExport param) throws NodeMgrException {
@@ -292,6 +301,7 @@ public class UserController extends BaseController {
             .body(new InputStreamResource(fileContentHandle.getInputStream()));
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.EXPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/exportP12")
     public ResponseEntity<InputStreamResource> exportP12UserFromSign(@RequestBody ReqExport param) throws NodeMgrException {
@@ -325,6 +335,7 @@ public class UserController extends BaseController {
      * @return
      * @throws NodeMgrException
      */
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.EXPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/export/{userId}")
     public BaseResponse exportRawUserFromSign(@PathVariable("userId") Integer userId)
@@ -339,6 +350,7 @@ public class UserController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, tbUser);
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/bind/privateKey")
     public BaseResponse bindPrivateKey(@Valid @RequestBody ReqBindPrivateKey reqBind,
@@ -363,6 +375,7 @@ public class UserController extends BaseController {
         return baseResponse;
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/bind/privateKey/pem")
     public BaseResponse bindPrivateKeyByPem(@Valid @RequestBody ReqBindPrivateKey reqBindPem, BindingResult result) {
@@ -390,6 +403,7 @@ public class UserController extends BaseController {
         return baseResponse;
     }
 
+    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping("/bind/privateKey/p12")
     public BaseResponse bindPrivateKeyByP12(@RequestParam MultipartFile p12File,

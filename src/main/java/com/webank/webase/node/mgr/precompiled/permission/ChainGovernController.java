@@ -15,6 +15,8 @@
 package com.webank.webase.node.mgr.precompiled.permission;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -98,7 +100,7 @@ public class ChainGovernController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, finalList, totalCount);
     }
 
-
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.GRANT)
     @SaCheckPermission("bcos:sys:grantCommittee")
     @PostMapping("committee")
     public BaseResponse grantCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -116,6 +118,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.GRANT)
     @SaCheckPermission("bcos:sys:revokeCommittee")
     @DeleteMapping("committee")
     public BaseResponse revokeCommittee(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -163,6 +166,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:sys:updateCommitteeWeight")
     @PutMapping("committee/weight")
     public BaseResponse updateCommitteeWeight(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -193,6 +197,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:sys:updateThreshold")
     @PutMapping("threshold")
     public BaseResponse updateThreshold(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -229,6 +234,7 @@ public class ChainGovernController extends BaseController {
         return new BasePageResponse(ConstantCode.SUCCESS, finalList, totalCount);
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.GRANT)
     @SaCheckPermission("bcos:sys:grantOperator")
     @PostMapping("operator")
     public BaseResponse grantOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -246,6 +252,7 @@ public class ChainGovernController extends BaseController {
         return res;
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.DELETE)
     @SaCheckPermission("bcos:sys:revokeOperator")
     @DeleteMapping("operator")
     public BaseResponse revokeOperator(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -289,6 +296,7 @@ public class ChainGovernController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS, res);
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:sys:freezeAccount")
     @PostMapping("account")
     public BaseResponse freezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,
@@ -306,6 +314,7 @@ public class ChainGovernController extends BaseController {
         return res;
     }
 
+    @Log(title = "BCOS2/系统管理/权限管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:sys:unfreezeAccount")
     @DeleteMapping("account")
     public BaseResponse unfreezeAccount(@Valid @RequestBody ChainGovernanceHandle governanceHandle,

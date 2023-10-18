@@ -14,6 +14,8 @@
 package com.webank.webase.node.mgr.group;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.qctc.common.log.annotation.Log;
+import com.qctc.common.log.enums.BusinessType;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.controller.BaseController;
 import com.webank.webase.node.mgr.base.entity.BasePageResponse;
@@ -340,6 +342,7 @@ public class GroupController extends BaseController {
     /**
      * delete all group's data(trans, contract, node etc.)
      */
+    @Log(title = "BCOS2/群组管理", businessType = BusinessType.DELETE)
     @SaCheckPermission("bcos:groups:operate")
     @DeleteMapping("/{groupId}")
     public BaseResponse deleteGroupData(@PathVariable("groupId") Integer groupId) {
@@ -369,6 +372,7 @@ public class GroupController extends BaseController {
         return baseResponse;
     }
 
+    @Log(title = "BCOS2/群组管理", businessType = BusinessType.UPDATE)
     @SaCheckPermission("bcos:groups:operate")
     @PutMapping("/description")
     public BaseResponse updateDescription(@RequestBody @Valid ReqUpdateDesc req, BindingResult result)
