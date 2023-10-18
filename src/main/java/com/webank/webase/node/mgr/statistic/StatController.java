@@ -17,6 +17,7 @@ package com.webank.webase.node.mgr.statistic;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
+import com.webank.webase.node.mgr.statistic.entity.ChainStat;
 import com.webank.webase.node.mgr.statistic.mapper.TbStatMapper;
 import com.webank.webase.node.mgr.statistic.result.PerformanceData;
 import java.time.Duration;
@@ -63,5 +64,12 @@ public class StatController {
             Duration.between(startTime, Instant.now()).toMillis());
         return response;
     }
+
+    @GetMapping("/chain")
+    public BaseResponse getChainStat() {
+        ChainStat chainStat = statService.getChainStat();
+        return new BaseResponse(ConstantCode.SUCCESS, chainStat);
+    }
+
 
 }
