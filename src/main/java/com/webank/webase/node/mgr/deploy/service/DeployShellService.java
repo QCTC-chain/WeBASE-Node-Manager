@@ -80,7 +80,7 @@ public class DeployShellService {
 
         // build_chain.sh only support docker on linux
         // command e.g : build_chain.sh -f ipconf -o outputDir [ -p ports_start ] [ -g ] [ -d ] [ -e exec_binary ] [ -v support_version ]
-        String command = String.format("bash %s -S -f %s -o %s %s %s %s %s",
+        String command = String.format("bash %s -S -f %s -o %s %s %s %s %s %s",
                 // build_chain.sh shell script
                 constant.getBuildChainShell(),
                 // ipconf file path
@@ -96,7 +96,8 @@ public class DeployShellService {
                 // use binary local
                 StringUtils.isBlank(constant.getFiscoBcosBinary()) ? "" :
                         String.format(" -e %s ", constant.getFiscoBcosBinary()),
-                String.format(" -v %s ", chainVersion)
+                String.format(" -v %s ", chainVersion),
+                encryptType == CryptoType.SM_TYPE ? " -G" : ""
         );
 
         ExecuteResult result = JavaCommandExecutor.executeCommand(command, constant.getExecBuildChainTimeout());
