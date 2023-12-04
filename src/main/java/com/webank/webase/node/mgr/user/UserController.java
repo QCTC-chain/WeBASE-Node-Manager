@@ -280,7 +280,6 @@ public class UserController extends BaseController {
         return new BaseResponse(ConstantCode.SUCCESS);
     }
 
-    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.EXPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/exportPem")
     public ResponseEntity<InputStreamResource> exportPemUserFromSign(@RequestBody ReqExport param) throws NodeMgrException {
@@ -301,7 +300,6 @@ public class UserController extends BaseController {
             .body(new InputStreamResource(fileContentHandle.getInputStream()));
     }
 
-    @Log(title = "BCOS2/私钥管理", businessType = BusinessType.EXPORT)
     @SaCheckPermission("bcos:privateKeyManagement:userOperate")
     @PostMapping(value = "/exportP12")
     public ResponseEntity<InputStreamResource> exportP12UserFromSign(@RequestBody ReqExport param) throws NodeMgrException {
