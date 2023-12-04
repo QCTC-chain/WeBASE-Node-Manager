@@ -385,15 +385,19 @@ public class StatService {
         long transCount = 0;
         if (count > 0) {
             List<TbGroup> groupList = groupService.getGroupList(null);
-            if (groupList != null && groupList.size() > 0) {
+            if (groupList != null && !groupList.isEmpty()) {
                 for (TbGroup group : groupList) {
-                    nodeCount += group.getNodeCount();
-                    GroupGeneral groupGeneral = groupService.getGeneralAndUpdateNodeCount(group.getGroupId());
-                    contractCount += groupGeneral.getContractCount();
+                    try {
+                        nodeCount += group.getNodeCount();
+                        GroupGeneral groupGeneral = groupService.getGeneralAndUpdateNodeCount(group.getGroupId());
+                        contractCount += groupGeneral.getContractCount();
 
-                    TotalTransCountInfo transCountInfo = frontInterface.getTotalTransactionCount(group.getGroupId());
-                    if (transCountInfo != null) {
-                        transCount += transCountInfo.getTxSum().longValue();
+                        TotalTransCountInfo transCountInfo = frontInterface.getTotalTransactionCount(group.getGroupId());
+                        if (transCountInfo != null) {
+                            transCount += transCountInfo.getTxSum().longValue();
+                        }
+                    } catch (Exception e) {
+                        log.warn("getChainStat, err: {}, continue next group", e.getMessage());
                     }
                 }
             }
