@@ -14,6 +14,7 @@
 package com.webank.webase.node.mgr.scheduler;
 
 
+import com.qctc.common.mybatis.helper.DataPermissionHelper;
 import com.webank.webase.node.mgr.config.properties.ConstantProperties;
 import com.webank.webase.node.mgr.statistic.StatService;
 import com.webank.webase.node.mgr.transaction.entity.TransListParam;
@@ -70,7 +71,7 @@ public class DeleteInfoTask {
         Instant startTime = Instant.now();
         log.debug("start deleteInfoStart. startTime:{}", startTime.toEpochMilli());
         //get group list
-        List<TbGroup> groupList = groupService.getGroupList(DataStatus.NORMAL.getValue());
+        List<TbGroup> groupList = DataPermissionHelper.ignore(() -> groupService.getGroupList(DataStatus.NORMAL.getValue()));
         if (groupList == null || groupList.size() == 0) {
             log.warn("DeleteInfoTask jump over, not found any group");
             return;

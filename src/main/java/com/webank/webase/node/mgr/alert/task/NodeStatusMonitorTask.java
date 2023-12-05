@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.qctc.common.mybatis.helper.DataPermissionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -79,7 +80,7 @@ public class NodeStatusMonitorTask {
             return;
         }
 
-        List<TbGroup> groupList = groupService.getGroupList(DataStatus.NORMAL.getValue());
+        List<TbGroup> groupList = DataPermissionHelper.ignore(() -> groupService.getGroupList(DataStatus.NORMAL.getValue()));
         if (groupList == null || groupList.size() == 0) {
             log.warn("checkNodeStatusForAlert jump over: not found any group");
             return;

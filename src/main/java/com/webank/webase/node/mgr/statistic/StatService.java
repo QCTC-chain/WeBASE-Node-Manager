@@ -14,6 +14,7 @@
 
 package com.webank.webase.node.mgr.statistic;
 
+import com.qctc.common.mybatis.helper.DataPermissionHelper;
 import com.webank.webase.node.mgr.base.code.ConstantCode;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import com.webank.webase.node.mgr.config.properties.ConstantProperties;
@@ -361,6 +362,12 @@ public class StatService {
         return maxStat != null;
     }
 
+    static class ChainStatInfo {
+        long nodeCount = 0;
+        long contractCount = 0;
+        long transCount = 0;
+    }
+
     public ChainStat getChainStat() {
         ChainStat chainStat = new ChainStat();
 
@@ -380,33 +387,36 @@ public class StatService {
         // 群组和节点信息
         // get group list include invalid status
         long count = groupService.countOfGroup(null, null);
-        long nodeCount = 0;
-        long contractCount = 0;
-        long transCount = 0;
+        ChainStatInfo chainStatInfoRet = new ChainStatInfo();
         if (count > 0) {
-            List<TbGroup> groupList = groupService.getGroupList(null);
-            if (groupList != null && !groupList.isEmpty()) {
-                for (TbGroup group : groupList) {
-                    try {
-                        nodeCount += group.getNodeCount();
-                        GroupGeneral groupGeneral = groupService.getGeneralAndUpdateNodeCount(group.getGroupId());
-                        contractCount += groupGeneral.getContractCount();
+            chainStatInfoRet = DataPermissionHelper.ignore(() -> {
+                List<TbGroup> groupList = groupService.getGroupList(null);
+                ChainStatInfo chainStatInfo = new ChainStatInfo();
+                if (groupList != null && !groupList.isEmpty()) {
+                    for (TbGroup group : groupList) {
+                        try {
+                            chainStatInfo.nodeCount += group.getNodeCount();
+                            GroupGeneral groupGeneral = groupService.getGeneralAndUpdateNodeCount(group.getGroupId());
+                            chainStatInfo.contractCount += groupGeneral.getContractCount();
 
-                        TotalTransCountInfo transCountInfo = frontInterface.getTotalTransactionCount(group.getGroupId());
-                        if (transCountInfo != null) {
-                            transCount += transCountInfo.getTxSum().longValue();
+                            TotalTransCountInfo transCountInfo = frontInterface.getTotalTransactionCount(group.getGroupId());
+                            if (transCountInfo != null) {
+                                chainStatInfo.transCount += transCountInfo.getTxSum().longValue();
+                            }
+                        } catch (Exception e) {
+                            log.warn("getChainStat, err: {}, continue next group", e.getMessage());
                         }
-                    } catch (Exception e) {
-                        log.warn("getChainStat, err: {}, continue next group", e.getMessage());
                     }
                 }
-            }
+
+                return chainStatInfo;
+            });
         }
 
         chainStat.setGroupCount(count);
-        chainStat.setNodeCount(nodeCount);
-        chainStat.setContractCount(contractCount);
-        chainStat.setTransCount(transCount);
+        chainStat.setNodeCount(chainStatInfoRet.nodeCount);
+        chainStat.setContractCount(chainStatInfoRet.contractCount);
+        chainStat.setTransCount(chainStatInfoRet.transCount);
 
         return chainStat;
     }
