@@ -148,7 +148,7 @@ public class FrontController extends BaseController {
     /**
      * query front info list.
      */
-    @Log(title = "BCOS2/节点管理", businessType = BusinessType.UPDATE)
+//    @Log(title = "BCOS2/节点管理", businessType = BusinessType.UPDATE)
     @GetMapping(value = "/refresh/status")
     public BaseResponse refreshFrontStatus() throws NodeMgrException {
         Instant startTime = Instant.now();
