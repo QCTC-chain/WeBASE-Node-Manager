@@ -78,7 +78,7 @@ public class NodeService {
     private FrontService frontService;
 
     // interval of check node status
-    private static final Long EXT_CHECK_NODE_WAIT_MIN_MILLIS = 3500L;
+    private static final Long EXT_CHECK_NODE_WAIT_MIN_MILLIS = 5000L;
 
     /**
      * add new node data.
@@ -233,7 +233,7 @@ public class NodeService {
 
             Duration duration = Duration.between(modifyTime, LocalDateTime.now());
             Long subTime = duration.toMillis();
-            if (subTime < (nodeCount * 1000 + EXT_CHECK_NODE_WAIT_MIN_MILLIS) && createTime.isBefore(modifyTime)) {
+            if (subTime < (nodeCount * 2000 + EXT_CHECK_NODE_WAIT_MIN_MILLIS) && createTime.isBefore(modifyTime)) {
                 log.warn("checkNodeStatus jump over. for time internal subTime:{}", subTime);
                 return;
             }
