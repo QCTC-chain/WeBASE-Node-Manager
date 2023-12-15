@@ -337,7 +337,7 @@ public class GroupService {
         // v1.4.3 remove
         frontGroupMapService.removeInvalidFrontGroupMap();
         // update front_group_map status of local group
-        checkGroupMapByLocalGroupList(frontList);
+//        checkGroupMapByLocalGroupList(frontList);
         log.info("end resetGroupList. useTime:{} ",
                 Duration.between(startTime, Instant.now()).toMillis());
     }
@@ -695,11 +695,11 @@ public class GroupService {
         log.debug("checkGroupMapByLocalGroupList frontList:{},groupListLocal:{}",
                 frontList, groupListLocal);
         for (TbFront front : frontList) {
-            if( ! FrontStatusEnum.isRunning(front.getStatus())){
+            if(!FrontStatusEnum.isRunning(front.getStatus())){
                 log.warn("Front:[{}:{}] is not running.",front.getFrontIp(),front.getHostIndex());
                 continue;
             }
-            // query roup list from chain
+            // query group list from chain
             List<String> groupListOnChain;
             try {
                 groupListOnChain = frontInterface.getGroupListFromSpecificFront(front.getFrontIp(), front.getFrontPort());
