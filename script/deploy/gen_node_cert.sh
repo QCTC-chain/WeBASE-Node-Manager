@@ -297,6 +297,23 @@ main()
             continue;
         fi
         if [ -n "$guomi_mode" ]; then
+            # 如果是可视化增加节点，并且是创建sdk的证书，同时gm目录不存在，则需要创建/gm文件夹并生成证书
+            if [ -d "${output_dir}/gm" ]; then
+                echo "gm目录已存在"
+            else
+                suffix="/sdk"
+                if [[ ${output_dir} == *"$suffix" ]]; then
+                    echo "正在创建sdk证书"
+                    mkdir -p "${output_dir}/gm"
+                    gen_node_cert_with_extensions_gm "${gmkey_path}" "${output_dir}/gm" "sdk" sdk v3_req
+                    if [ -z "${no_agency}" ];then cat "${gmkey_path}/gmagency.crt" >> "${output_dir}/gm/gmsdk.crt";fi
+                    cat "${gmkey_path}/../gmca.crt" >> "${output_dir}/gm/gmsdk.crt"
+                    gen_node_cert_with_extensions_gm "${gmkey_path}" "${output_dir}/gm" "sdk" ensdk v3enc_req
+                    cp "${gmkey_path}/../gmca.crt" "${output_dir}/gm/"
+                    $TASSL_CMD ec -in "${output_dir}/gm/gmsdk.key" -text -noout 2> /dev/null | sed -n '7,11p' | sed 's/://g' | tr "\n" " " | sed 's/ //g' | awk '{print substr($0,3);}'  | cat > "$ndpath/gmsdk.publickey"
+                    mv "${output_dir}/gmsdk.publickey" "${output_dir}/gm"
+                fi
+            fi
             gen_node_cert_gm ${gmkey_path} ${output_dir} > ${logfile} 2>&1
             mkdir -p ${gm_conf_path}/
             mv ./*.* ${gm_conf_path}/
