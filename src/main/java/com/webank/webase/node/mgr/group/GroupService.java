@@ -429,13 +429,14 @@ public class GroupService {
                 try {
                     // if observer set removed, it still return itself as observer
                     groupPeerList = frontInterface.getGroupPeersFromSpecificFront(frontIp, frontPort, gId);
+
+                    removeInvalidPeer(gId, groupPeerList);
                 } catch (Exception e) {
                     // case: if front1 group1 stopped, getGroupPeers error, update front1_group1_map invalid fail
                     log.warn("saveDataOfGroup getGroupPeersFromSpecificFront fail, frontId:{}, groupId:{}",
                         front.getFrontId(), groupId);
                     continue;
                 }
-                removeInvalidPeer(gId, groupPeerList);
             }
         }
     }
@@ -938,6 +939,10 @@ public class GroupService {
         if (OPERATE_STOP_GROUP.equals(type) && groupOperateStatus.getCode() == 0) {
             log.info("stopGroup newFrontGroup frontId:{}, groupId:{}", tbFront.getFrontId(), groupId);
             frontGroupMapService.newFrontGroupWithStatus(tbFront.getFrontId(), groupId, GroupStatus.MAINTAINING.getValue());
+        } else if (OPERATE_START_GROUP.equals(type) && groupOperateStatus.getCode() == 0) {
+            // 由于在resetGroupList中去掉了front-group添加不在链上的本地群组的逻辑，此处在启动群组时，需要更新group-front map表
+            log.info("startGroup newFrontGroup frontId:{}, groupId:{}", tbFront.getFrontId(), groupId);
+            frontGroupMapService.newFrontGroupWithStatus(tbFront.getFrontId(), groupId, GroupStatus.NORMAL.getValue());
         }
         // refresh group status
         // if stop group, cannot update front_group_map as invalid for getGroupPeers fail
