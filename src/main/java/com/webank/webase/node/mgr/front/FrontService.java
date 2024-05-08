@@ -24,10 +24,7 @@ import com.webank.webase.node.mgr.deploy.chain.ChainService;
 import com.webank.webase.node.mgr.deploy.entity.*;
 import com.webank.webase.node.mgr.deploy.mapper.TbChainMapper;
 import com.webank.webase.node.mgr.deploy.service.*;
-import com.webank.webase.node.mgr.front.entity.FrontInfo;
-import com.webank.webase.node.mgr.front.entity.FrontNodeConfig;
-import com.webank.webase.node.mgr.front.entity.FrontParam;
-import com.webank.webase.node.mgr.front.entity.TbFront;
+import com.webank.webase.node.mgr.front.entity.*;
 import com.webank.webase.node.mgr.front.frontinterface.FrontInterfaceService;
 import com.webank.webase.node.mgr.frontgroupmap.FrontGroupMapCache;
 import com.webank.webase.node.mgr.frontgroupmap.FrontGroupMapMapper;
@@ -685,7 +682,7 @@ public class FrontService {
             TbFront front = TbFront.init(nodeId, ip, frontPort, agencyId, agencyName, imageTag, RunTypeEnum.DOCKER,
                 hostId, currentIndex, imageTag, DockerCommandService
                     .getContainerName(rootDirOnHost, chainName, currentIndex),
-                jsonrpcPort, p2pPort, channelPort, chain.getId(), chainName, frontStatusEnum);
+                jsonrpcPort, p2pPort, channelPort, chain.getId(), chainName, frontStatusEnum, nodeInfo.getCpus(), nodeInfo.getMemory());
             // insert front into db
             ((FrontService) AopContext.currentProxy()).insert(front);
 
@@ -1008,7 +1005,7 @@ public class FrontService {
         try {
             this.dockerOptions.run(
                 hostDTO, front.getImageTag(), front.getContainerName(),
-                PathService.getChainRootOnHost(hostDTO.getRootDir(), front.getChainName()), front.getHostIndex());
+                PathService.getChainRootOnHost(hostDTO.getRootDir(), front.getChainName()), front.getHostIndex(), front.getCpus(), front.getMemory());
 
             threadPoolTaskScheduler.schedule(()-> {
                 // add check port is on
@@ -1347,5 +1344,9 @@ public class FrontService {
         int frontPort = front.getFrontPort();
         FrontNodeConfig nodeConfig = frontInterface.getNodeConfigFromSpecificFront(frontIp, frontPort);
         return nodeConfig;
+    }
+
+    public int setResource(FrontRes frontRes) {
+        return this.frontMapper.updateResource(frontRes.getFrontId(), frontRes.getCpus(), frontRes.getMemory());
     }
 }

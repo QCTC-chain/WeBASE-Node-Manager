@@ -411,7 +411,8 @@ public class ChainService {
                         RunTypeEnum.DOCKER , hostDTO.getId(), nodeConfig.getHostIndex(), imageTag,
                         DockerCommandService.getContainerName(hostDTO.getRootDir(), chainName,
                         nodeConfig.getHostIndex()), nodeConfig.getJsonrpcPort(), nodeConfig.getP2pPort(),
-                        nodeConfig.getChannelPort(), newChain.getId(), newChain.getChainName(), FrontStatusEnum.INITIALIZED);
+                        nodeConfig.getChannelPort(), newChain.getId(), newChain.getChainName(), FrontStatusEnum.INITIALIZED,
+                        targetNode.getCpus(), targetNode.getMemory());
                 log.info("initChainDbData insert front {}", front);
                 this.frontService.insert(front);
 

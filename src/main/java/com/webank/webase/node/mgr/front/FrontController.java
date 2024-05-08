@@ -23,11 +23,9 @@ import com.webank.webase.node.mgr.base.entity.BasePageResponse;
 import com.webank.webase.node.mgr.base.entity.BaseResponse;
 import com.webank.webase.node.mgr.base.exception.NodeMgrException;
 import com.webank.webase.node.mgr.config.properties.ConstantProperties;
+import com.webank.webase.node.mgr.front.entity.*;
 import com.webank.webase.node.mgr.tools.JsonTools;
-import com.webank.webase.node.mgr.front.entity.FrontInfo;
-import com.webank.webase.node.mgr.front.entity.FrontNodeConfig;
-import com.webank.webase.node.mgr.front.entity.FrontParam;
-import com.webank.webase.node.mgr.front.entity.TbFront;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -92,6 +90,23 @@ public class FrontController extends BaseController {
         return baseResponse;
     }
 
+    /**
+     * 修改节点资源（CPU和内存）
+     */
+    @Log(title = "BCOS2/修改节点资源", businessType = BusinessType.UPDATE)
+    @PostMapping("/setResource")
+    public BaseResponse setResource(@RequestBody @Valid FrontRes frontRes, BindingResult result) {
+        checkBindResult(result);
+        Instant startTime = Instant.now();
+        log.info("start setResource startTime:{} FrontRes:{}",
+                startTime.toEpochMilli(), JsonTools.toJSONString(frontRes));
+        BaseResponse baseResponse = new BaseResponse(ConstantCode.SUCCESS);
+        int res = frontService.setResource(frontRes);
+        baseResponse.setData(res);
+        log.info("end setResource useTime:{} result:{}",
+                Duration.between(startTime, Instant.now()).toMillis(), JsonTools.toJSONString(baseResponse));
+        return baseResponse;
+    }
 
     /**
      * query front info list.
