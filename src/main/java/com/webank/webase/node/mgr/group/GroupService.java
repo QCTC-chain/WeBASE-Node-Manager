@@ -1052,13 +1052,13 @@ public class GroupService {
             throw new NodeMgrException(INSERT_GROUP_ERROR);
         }
 
-        LoginUser curLoginUser = LoginHelper.getLoginUser();
+        //LoginUser curLoginUser = LoginHelper.getLoginUser();
 
         //save group id
         TbGroup tbGroup = new TbGroup(groupId,
                 String.format("group%s", groupId),
                 nodeCount, groupDesc, groupType, groupStatus, chainId, chainName,
-                BigInteger.valueOf(curLoginUser.getUserId()), BigInteger.valueOf(curLoginUser.getDeptId()));
+                BigInteger.ZERO, BigInteger.ZERO);
         groupMapper.insertSelective(tbGroup);
 
         //create table by group id
