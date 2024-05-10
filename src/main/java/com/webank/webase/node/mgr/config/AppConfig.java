@@ -15,8 +15,12 @@ import org.springframework.context.annotation.Configuration;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author zhangyang
@@ -76,5 +80,13 @@ public class AppConfig implements InitializingBean {
         BufferedWriter writer = new BufferedWriter(fileWriter);
         writer.write(sshKey);
         writer.close();
+
+        try {
+            Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rw-------");
+            Files.setPosixFilePermissions(file.toPath(), permissions);
+            //log.info("文件权限修改成功！");
+        } catch (Exception e) {
+            log.error("文件权限修改失败：" + e.getMessage());
+        }
     }
 }
