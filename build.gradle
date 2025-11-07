@@ -141,6 +141,8 @@ dependencies {
     implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
     /* end: 微服务框架集成 */
 
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:9.0.110"
+
     compileOnly lombok
     annotationProcessor lombok
 
