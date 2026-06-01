@@ -14,6 +14,7 @@
 package com.webank.webase.node.mgr.contract;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.util.ObjectUtil;
 import com.qctc.common.log.annotation.Log;
 import com.qctc.common.log.enums.BusinessType;
 import com.qctc.common.satoken.utils.LoginHelper;
@@ -47,10 +48,14 @@ import com.webank.webase.node.mgr.contract.entity.RspContractNoAbi;
 import com.webank.webase.node.mgr.contract.entity.TbCns;
 import com.webank.webase.node.mgr.contract.entity.TbContract;
 import com.webank.webase.node.mgr.contract.entity.TbContractPath;
+import com.webank.webase.node.mgr.contract.entity.TransactionFuncParamV2;
 import com.webank.webase.node.mgr.contract.entity.TransactionInputParam;
+import com.webank.webase.node.mgr.contract.entity.TransactionInputParamV2;
 import com.webank.webase.node.mgr.user.entity.TbUser;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -63,6 +68,7 @@ import org.fisco.bcos.sdk.utils.AddressUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -256,6 +262,47 @@ public class ContractController extends BaseController {
                 JsonTools.toJSONString(baseResponse));
 
         return baseResponse;
+    }
+
+    /**
+     * send transaction v2.
+     */
+    @Log(title = "BCOS2/合约管理", businessType = BusinessType.INSERT)
+    @SaCheckPermission("bcos:contract:ide")
+    @PostMapping(value = "/transaction/v2")
+    public BaseResponse sendTransactionV2(@RequestBody @Valid TransactionInputParamV2 param,
+            BindingResult result) throws NodeMgrException {
+        checkBindResult(result);
+        log.info("before: {}", param);
+        TransactionInputParam transactionInputParam = convertTransactionInputParamV2(param);
+        log.info("after: {}", transactionInputParam);
+        return sendTransaction(transactionInputParam,
+                new BeanPropertyBindingResult(transactionInputParam, "transactionInputParam"));
+    }
+
+    private TransactionInputParam convertTransactionInputParamV2(TransactionInputParamV2 param) {
+        TransactionInputParam transactionInputParam = new TransactionInputParam();
+        BeanUtils.copyProperties(param, transactionInputParam);
+        List<Object> contractAbiList = new ArrayList<>();
+        JsonNode contractAbiJson = JsonTools.stringToJsonNode(param.getContractAbi());
+        if (contractAbiJson != null) {
+            if (contractAbiJson.isArray()) {
+                for (JsonNode abiNode : contractAbiJson) {
+                    contractAbiList.add(JsonTools.stringToObj(abiNode.toString(), Object.class));
+                }
+            } else {
+                contractAbiList.add(JsonTools.stringToObj(contractAbiJson.toString(), Object.class));
+            }
+        }
+        transactionInputParam.setContractAbi(contractAbiList);
+        List<String> funcParams = new ArrayList<>();
+        if (param.getFuncParam() != null) {
+            for (TransactionFuncParamV2 funcParam : param.getFuncParam()) {
+                funcParams.add(funcParam == null ? null : funcParam.getItem());
+            }
+        }
+        transactionInputParam.setFuncParam(funcParams);
+        return transactionInputParam;
     }
 
 
